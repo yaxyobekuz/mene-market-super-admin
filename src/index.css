@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .container {
+    @apply max-w-7xl w-full px-5 mx-auto;
+  }
+}
+
+@keyframes effect-shake {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+}
+.effect-shake {
+  animation: effect-shake 0.3s ease;
+}
