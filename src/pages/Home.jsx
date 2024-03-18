@@ -78,7 +78,7 @@ const Home = () => {
     <>
       <div className="py-24 text-lg font-medium text-gray-600">
         <div className="container">
-          <h1 className="text-5xl font-bold text-gray-700 mb-10">
+          <h1 className="text-3xl font-bold text-gray-700 mb-6 sm:text-4xl md:mb-10 md:text-5xl">
             Mene market users
           </h1>
 
@@ -88,9 +88,9 @@ const Home = () => {
               e.preventDefault();
               getUsers();
             }}
-            className="flex flex-col space-y-4 p-5 rounded-lg border-2 border-gray-300 max-w-max mb-10"
+            className="flex flex-col space-y-4 p-5 rounded-lg border-2 border-gray-300 mb-10 max-w-[500px] w-full"
           >
-            <label className="flex flex-col space-y-3">
+            <label className="flex flex-col space-y-3 w-full">
               <span className="flex justify-between">
                 <span className="text-xl font-semibold">Token</span>
                 <button
@@ -115,23 +115,25 @@ const Home = () => {
                   error
                     ? "border-red-500 focus:border-red-500"
                     : "border-gray-300 focus:border-green-500"
-                } w-96 border-2 rounded focus:outline-none p-3`}
+                } w-full border-2 rounded focus:outline-none p-3`}
                 placeholder="Bearer ${token}"
                 onChange={(e) => settoken(e.target.value)}
               />
             </label>
-            <button className="w-96 bg-green-500 text-white border-2 border-green-500 rounded focus:outline-none focus:border-green-500 p-3">
+            <button className="w-full bg-green-500 text-white border-2 border-green-500 rounded focus:outline-none focus:border-green-500 p-3">
               Get users
             </button>
           </form>
 
           {/* users list */}
-          <section className="space-y-10">
-            <h2 className="text-4xl font-bold text-gray-700">Existing users</h2>
+          <section className="space-y-6 md:space-y-10">
+            <h2 className="text-2xl font-bold text-gray-700 sm:text-3xl md:text-4xl">
+              Existing users
+            </h2>
 
             {/* users */}
             {!loader ? (
-              <ul className="grid grid-cols-3 gap-5">
+              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {users.length > 0 ? (
                   users.map((user, index) => {
                     return (
@@ -161,7 +163,7 @@ const Home = () => {
                 )}
               </ul>
             ) : (
-              <ul className="grid grid-cols-3 gap-5">
+              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <li className="flex flex-col border-2 border-gray-100 rounded-xl p-5 space-y-3">
                   <h3 className="w-10/12 h-7 bg-gray-200/70 rounded"></h3>
                   <p className="w-full h-7 bg-gray-200/70 rounded"></p>
