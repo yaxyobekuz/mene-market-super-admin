@@ -72,7 +72,7 @@
 
 /* active */
 header a.active {
-  @apply bg-brand-dark-800/5;
+  @apply bg-brand-dark-800 text-brand-creamy-400;
 }
 
 /* other */

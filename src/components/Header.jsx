@@ -21,9 +21,9 @@ const Header = () => {
 
           <Link
             to="/profile"
-            className="flex items-center gap-3 bg-brand-dark-800/5 py-2.5 px-3 rounded-xl transition-colors duration-300 hover:bg-brand-dark-800/10 md:py-3 md:px-4 md:rounded-2xl"
+            className="flex items-center gap-3 bg-brand-dark-800/5 p-3 rounded-2xl transition-colors duration-300 hover:bg-brand-dark-800/10 xs:py-3.5 xs:px-4"
           >
-            <span className="font-semibold md:text-xl">Profil</span>
+            <span className="font-semibold xs:text-xl">Profil</span>
             <img
               width={32}
               height={24}
@@ -35,12 +35,12 @@ const Header = () => {
         </div>
 
         {/* nav */}
-        <nav className="overflow-x-auto hidden-scroll">
+        <nav className="overflow-x-auto hidden-scroll p-1 bg-brand-dark-800/5 rounded-2xl xs:p-1.5">
           <ul className="flex justify-between gap-2 w-full sm:gap-5">
             <li>
               <NavLink
                 to=""
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Bosh sahifa
               </NavLink>
@@ -48,7 +48,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/products"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Mahsulotlar
               </NavLink>
@@ -56,7 +56,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/reviews"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Izohlar
               </NavLink>
@@ -64,7 +64,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/users"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Foydalanuvchilar
               </NavLink>
@@ -72,7 +72,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/appeals"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 So'rovlar
               </NavLink>
@@ -80,7 +80,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/donation-box"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Hayriya qutisi
               </NavLink>
@@ -88,7 +88,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/requests"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Murojaatlar
               </NavLink>
@@ -96,7 +96,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/payments"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 To'lovlar
               </NavLink>
@@ -104,7 +104,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/competitions"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Konkurslar
               </NavLink>
@@ -112,7 +112,7 @@ const Header = () => {
             <li>
               <NavLink
                 to="/news"
-                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800/5 xs:text-base sm:p-3"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Yangiliklar
               </NavLink>
