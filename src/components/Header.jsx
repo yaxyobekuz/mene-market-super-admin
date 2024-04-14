@@ -6,8 +6,9 @@ import logo from "../assets/images/logo.svg";
 import user from "../assets/images/user.svg";
 const Header = () => {
   return (
-    <header className="py-5">
+    <header className="py-5 mb-4 xs:mb-6 sm:mb-8 md:mb-10">
       <div className="container">
+        {/* top */}
         <div className="flex justify-between items-center mb-5">
           <Link to="/">
             <img
@@ -39,7 +40,7 @@ const Header = () => {
           <ul className="flex justify-between gap-2 w-full sm:gap-5">
             <li>
               <NavLink
-                to=""
+                to="/"
                 className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Bosh sahifa
@@ -47,7 +48,7 @@ const Header = () => {
             </li>
             <li>
               <NavLink
-                to="/products"
+                to="/product/products"
                 className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Mahsulotlar

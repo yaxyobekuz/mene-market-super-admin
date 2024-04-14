@@ -16,7 +16,7 @@
   }
 
   input {
-    @apply border-2 border-transparent focus:border-brand-dark-800 focus:outline-none;
+    @apply border-2 border-transparent placeholder:text-brand-dark-800/50 focus:border-brand-dark-800 focus:outline-none;
   }
 }
 
@@ -71,7 +71,7 @@
 }
 
 /* active */
-header a.active {
+a.active {
   @apply bg-brand-dark-800 text-brand-creamy-400;
 }
 
