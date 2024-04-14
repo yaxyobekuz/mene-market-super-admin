@@ -64,3 +64,8 @@
     @apply !border-[#e44040];
   }
 }
+
+/* other */
+.Toastify__toast-body {
+  @apply !font-fira-sans;
+}

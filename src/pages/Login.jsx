@@ -54,7 +54,6 @@ const Login = () => {
             dispatch(changeAuthData({ data: null, isLoggedIn: false }));
           }
         })
-        .catch((err) => console.log(err))
         .finally(() => setMainLoader(false));
     } else {
       setMainLoader(false);
@@ -104,14 +103,13 @@ const Login = () => {
           );
 
           // notification
-          toast("Akkauntga muvafaqiyatli kirdingiz!");
+          toast.success("Akkauntga muvafaqiyatli kirdingiz!");
         })
         .catch((err) => {
           const isOnline = navigator.onLine;
 
           // error notification
           if (isOnline) {
-            console.log("err", err);
             toast.error("E-pochta yoki parol noto'g'ri");
           } else {
             toast.error("Internet aloqasi mavjud emas!");
@@ -120,6 +118,7 @@ const Login = () => {
         .finally(() => setSecondaryLoader(false));
     }
   };
+
   return (
     <div className="flex items-center justify-center w-full min-h-screen">
       {mainLoader ? (
@@ -170,6 +169,7 @@ const Login = () => {
             <label className="flex flex-col gap-2 w-72">
               <span>E-pochta</span>
               <input
+                disabled={secondaryLoader}
                 type="email"
                 placeholder="E-pochta"
                 name="email"
@@ -182,6 +182,7 @@ const Login = () => {
               <span>Parol</span>
               <div className="flex items-center relative w-full">
                 <input
+                  disabled={secondaryLoader}
                   type={isPasswordInput ? "password" : "text"}
                   placeholder="Parol"
                   name="Password"
@@ -215,8 +216,21 @@ const Login = () => {
             </label>
 
             {/* btn */}
-            <button className="el-submit-btn w-full bg-brand-dark-800 rounded-xl py-2.5 px-3.5 text-brand-creamy-400">
-              Kirish
+            <button
+              disabled={secondaryLoader}
+              className="el-submit-btn flex justify-center w-full bg-brand-dark-800 rounded-xl py-3 px-3.5 text-brand-creamy-400 disabled:cursor-not-allowed"
+            >
+              {secondaryLoader ? (
+                <img
+                  className="rotate-animation size-6"
+                  width={24}
+                  height={24}
+                  src={loaderImg}
+                  alt="loader"
+                />
+              ) : (
+                "Kirish"
+              )}
             </button>
           </form>
         </div>
