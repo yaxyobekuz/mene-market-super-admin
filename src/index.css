@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,25 +10,57 @@
   }
 }
 
-@keyframes effect-shake {
-  0%,
-  100% {
-    transform: translateX(0px);
+@layer base {
+  body {
+    @apply bg-brand-creamy-400 text-brand-dark-800 text-base font-medium font-fira-sans;
   }
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(4px);
-  }
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-4px);
+
+  input {
+    @apply border-2 border-transparent focus:border-brand-dark-800 focus:outline-none;
   }
 }
-.effect-shake {
-  animation: effect-shake 0.3s ease;
+
+@layer components {
+  /* animations */
+  @keyframes effect-shake {
+    0%,
+    100% {
+      transform: translateX(0px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(4px);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-4px);
+    }
+  }
+
+  .effect-shake {
+    animation: effect-shake 0.3s ease;
+  }
+
+  @keyframes rotate-animation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(-360deg);
+    }
+  }
+
+  .rotate-animation {
+    animation: rotate-animation 0.9s linear infinite;
+  }
+
+  /* */
+  .is-invalid {
+    @apply !border-[#e44040];
+  }
 }
