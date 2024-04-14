@@ -21,6 +21,11 @@
 }
 
 @layer components {
+  /* scroll styles */
+  .hidden-scroll::-webkit-scrollbar {
+    @apply !hidden;
+  }
+
   /* animations */
   @keyframes effect-shake {
     0%,
@@ -63,6 +68,11 @@
   .is-invalid {
     @apply !border-[#e44040];
   }
+}
+
+/* active */
+header a.active {
+  @apply bg-brand-dark-800/5;
 }
 
 /* other */

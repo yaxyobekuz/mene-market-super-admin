@@ -22,6 +22,10 @@ export default {
         "fira-sans": "Fira sans, sans-serif",
       },
     },
+
+    screens: {
+      xs: "375px",
+    },
   },
   plugins: [],
 };
