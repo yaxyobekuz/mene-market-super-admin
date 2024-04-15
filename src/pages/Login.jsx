@@ -5,11 +5,13 @@ import { changeAuthData } from "../store/authSlice";
 // axios
 import axios from "../axios/axios";
 
+// loader
+import Loader from "../components/Loader";
+
 // toastify
 import { toast } from "react-toastify";
 
 // images
-import loaderImg from "../assets/images/loader.png";
 import rabbitImg from "../assets/images/rabbit.png";
 import eye from "../assets/images/eye.svg";
 import eyeSlash from "../assets/images/eye-slash.svg";
@@ -122,13 +124,7 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center w-full min-h-screen">
       {mainLoader ? (
-        <img
-          className="rotate-animation size-7 sm:size-8"
-          width={32}
-          height={32}
-          src={loaderImg}
-          alt="loader"
-        />
+        <Loader size={32} />
       ) : (
         <div className="flex flex-col items-center gap-4 bg-white rounded-2xl p-6 shadow-black/10 shadow-2xl">
           {/* img */}
@@ -220,17 +216,7 @@ const Login = () => {
               disabled={secondaryLoader}
               className="el-submit-btn flex justify-center w-full bg-brand-dark-800 rounded-xl py-3 px-3.5 text-brand-creamy-400 disabled:cursor-not-allowed"
             >
-              {secondaryLoader ? (
-                <img
-                  className="rotate-animation size-6"
-                  width={24}
-                  height={24}
-                  src={loaderImg}
-                  alt="loader"
-                />
-              ) : (
-                "Kirish"
-              )}
+              {secondaryLoader ? <Loader size={24} /> : "Kirish"}
             </button>
           </form>
         </div>
