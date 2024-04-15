@@ -15,8 +15,20 @@
     @apply bg-brand-creamy-400 text-brand-dark-800 text-base font-medium font-fira-sans;
   }
 
-  input {
+  input,
+  textarea {
     @apply border-2 border-transparent placeholder:text-brand-dark-800/50 focus:border-brand-dark-800 focus:outline-none;
+  }
+
+  h1 {
+    @apply font-bold text-[28px] leading-8 xs:text-3xl sm:text-4xl;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-bold;
   }
 }
 
@@ -24,6 +36,11 @@
   /* scroll styles */
   .hidden-scroll::-webkit-scrollbar {
     @apply !hidden;
+  }
+
+  /* buttons */
+  .main-btn {
+    @apply bg-brand-dark-800 py-3 px-5 rounded-xl text-brand-creamy-400;
   }
 
   /* animations */

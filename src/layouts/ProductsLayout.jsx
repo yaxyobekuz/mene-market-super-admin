@@ -14,7 +14,7 @@ const ProductsLayout = () => {
     <>
       <div className="mb-10 xs:mb-12">
         <div className="container">
-          <h1 className="text-4xl font-bold mb-7">Mahsulotlar</h1>
+          <h1 className="mb-7">Mahsulotlar</h1>
 
           {/* product add link */}
           <div className="grid grid-cols-1 gap-5 mb-7 xs:grid-cols-2 xs:gap-6">

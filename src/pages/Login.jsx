@@ -160,7 +160,7 @@ const Login = () => {
           </div>
 
           {/* title */}
-          <h1 className="w-full text-2xl font-semibolb">Kirish</h1>
+          <h1 className="w-full !text-2xl !font-semibold">Kirish</h1>
           <hr className="w-full border-brand-dark-800/20" />
 
           {/* form elements */}

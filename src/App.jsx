@@ -22,6 +22,7 @@ import ProductsLayout from "./layouts/ProductsLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Products from "./pages/Products";
+import ProductAdd from "./pages/ProductAdd";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -43,6 +44,8 @@ const App = () => {
           <Route path="products" element={<ProductsLayout />}>
             <Route index path=":productType" element={<Products />} />
           </Route>
+
+          <Route path="add" element={<ProductAdd />} />
         </Route>
       </Route>
     )
