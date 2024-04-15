@@ -20,15 +20,19 @@
     @apply border-2 border-transparent placeholder:text-brand-dark-800/50 focus:border-brand-dark-800 focus:outline-none;
   }
 
-  h1 {
-    @apply font-bold text-[28px] leading-8 xs:text-3xl sm:text-4xl;
-  }
-
   h1,
   h2,
   h3,
   h4 {
     @apply font-bold;
+  }
+
+  h1 {
+    @apply text-[28px] leading-8 xs:text-3xl sm:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl sm:text-3xl;
   }
 }
 
