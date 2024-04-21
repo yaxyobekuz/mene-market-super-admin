@@ -107,7 +107,7 @@ const ProductsLayout = () => {
           </div>
 
           {/* nav */}
-          <nav className="overflow-x-auto hidden-scroll p-1 mb-7 bg-brand-dark-800/5 rounded-2xl xs:p-1.5">
+          <nav className="overflow-x-auto hidden-scroll p-1 mb-4 bg-brand-dark-800/5 rounded-2xl md:mb-7 xs:p-1.5">
             <ul className="flex justify-between gap-2 w-full sm:gap-5">
               {tabButtons.map((button) => {
                 return (
@@ -126,11 +126,11 @@ const ProductsLayout = () => {
           </nav>
 
           {/* search wrapper */}
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse gap-4 md:flex-row">
             {/* reload btn */}
             <button
               onClick={getProductsData}
-              className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5"
+              className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5 py-4"
             >
               <img
                 width={24}
@@ -142,6 +142,7 @@ const ProductsLayout = () => {
               <span>Ma'lumotlarni yangilash</span>
             </button>
 
+            {/* search */}
             <div className="w-full">
               {/* search input wrapper */}
               <form className="flex items-center relative">
@@ -170,8 +171,6 @@ const ProductsLayout = () => {
         </div>
       </div>
 
-      {/* <div className="flex items-center justify-center fixed inset-0 w-full h-screen bg-brand-creamy-400/70">
-      </div> */}
       {loader && (
         <div className="flex gap-5 container">
           <p className="text-xl">Ma'lumotlar yuklanmoqda</p>
