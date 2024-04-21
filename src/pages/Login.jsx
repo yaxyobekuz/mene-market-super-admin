@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
+
+// redux
 import { useSelector, useDispatch } from "react-redux";
 import { changeAuthData } from "../store/authSlice";
 
 // axios
 import axios from "../axios/axios";
+
+// regex
+import { emailRegex, passwordRegex } from "../helpers/regexes";
 
 // loader
 import Loader from "../components/Loader";
@@ -23,9 +28,6 @@ const Login = () => {
   const [secondaryLoader, setSecondaryLoader] = useState(false);
   const [isPasswordInput, setIsPasswordInput] = useState(true);
 
-  // regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^.{8,}$/;
   const validateInput = (pattern, input) => {
     if (pattern.test(input.value)) {
       input.classList.remove("is-invalid");
@@ -107,12 +109,12 @@ const Login = () => {
           // notification
           toast.success("Akkauntga muvafaqiyatli kirdingiz!");
         })
-        .catch((err) => {
+        .catch(() => {
           const isOnline = navigator.onLine;
 
           // error notification
           if (isOnline) {
-            toast.error("E-pochta yoki parol noto'g'ri");
+            toast.error("E-pochta yoki parol noto'g'ri!");
           } else {
             toast.error("Internet aloqasi mavjud emas!");
           }
