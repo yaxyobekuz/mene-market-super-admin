@@ -1,18 +1,19 @@
 import React from "react";
 
-import { ToastContainer, Zoom } from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const ToastifyContainer = () => {
   return (
     <ToastContainer
       position="bottom-right"
-      autoClose={3500}
+      autoClose={5000}
       hideProgressBar={true}
       closeOnClick={true}
       pauseOnHover={true}
       draggable={false}
       theme={"light "}
-      transition={Zoom}
+      transition={Bounce}
+      stacked
     />
   );
 };

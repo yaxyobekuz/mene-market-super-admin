@@ -1,0 +1,16 @@
+.Toastify__toast {
+  background: #fef6eb;
+  box-shadow: 0 4px 16px 0px rgba(41, 37, 36, 0.1);
+  border-radius: 12px;
+}
+
+/* close btn */
+.Toastify__close-button {
+  color: #292524;
+  opacity: 0.5;
+}
+
+.Toastify__close-button svg {
+  width: 18px;
+  height: 18px;
+}
