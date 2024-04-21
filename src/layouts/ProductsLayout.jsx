@@ -1,15 +1,71 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
+// redux
+import { useSelector, useDispatch } from "react-redux";
+import { setProductsData } from "../store/productsDataSlice";
+
+// axios
+import axios from "../axios/axios";
+
+// toast
+import { toast } from "react-toastify";
+
 // tab buttons data
 import { tabButtons } from "../data/data";
+
+// components
+import Loader from "../components/Loader";
 
 // images
 import searchImg from "../assets/images/search.svg";
 import findProductImg from "../assets/images/find-product.svg";
 import productAddImg from "../assets/images/product-add.svg";
+import reloadImg from "../assets/images/reload.svg";
+
 const ProductsLayout = () => {
+  const [loader, setLoader] = useState(false);
+  const [error, setError] = useState(false);
+  const { productsData } = useSelector((store) => store.productsData);
+  const { authData } = useSelector((store) => store.authData);
+  const dispatch = useDispatch();
+
+  const getProductsData = () => {
+    setError(false);
+    setLoader(true);
+
+    // fetch products data
+    axios
+      .get("/Product", {
+        headers: {
+          Authorization: "Bearer " + authData.data.token,
+        },
+      })
+      .then((res) => {
+        dispatch(setProductsData(res.data));
+      })
+      .catch(() => {
+        setError(true);
+        const isOnline = navigator.onLine;
+
+        // error notification
+        if (isOnline) {
+          toast.error("Ma'lumotlarni yuklab bo'lmadi");
+        } else {
+          toast.error("Internet aloqasi mavjud emas!");
+        }
+      })
+      .finally(() => setLoader(false));
+  };
+
+  useEffect(() => {
+    if (productsData.length === 0) {
+      getProductsData();
+    } else {
+      return;
+    }
+  }, []);
   return (
     <>
       <div className="mb-10 xs:mb-12">
@@ -69,33 +125,59 @@ const ProductsLayout = () => {
             </ul>
           </nav>
 
-          {/* search */}
-          <div className="w-full">
-            {/* search input wrapper */}
-            <form className="flex items-center relative">
-              <input
-                placeholder="Mahsulotlarni qidirish"
-                name="search"
-                type="text"
-                className="w-full bg-brand-dark-800/5 rounded-2xl py-2.5 pl-9 pr-24 xs:py-3.5 xs:pl-12 xs:pr-28"
-              />
-
+          {/* search wrapper */}
+          <div className="flex gap-4">
+            {/* reload btn */}
+            <button
+              onClick={getProductsData}
+              className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5"
+            >
               <img
                 width={24}
                 height={24}
-                src={searchImg}
-                alt="search icon"
-                className="absolute size-5 left-3 xs:left-3.5 xs:size-6"
+                src={reloadImg}
+                alt="reload products data icon"
+                className="size-6"
               />
+              <span>Ma'lumotlarni yangilash</span>
+            </button>
 
-              {/* submit btn */}
-              <button className="absolute text-sm right-1 bg-brand-dark-800 text-brand-creamy-400 py-2.5 px-4 rounded-xl xs:text-base xs:right-1.5">
-                Qidirish
-              </button>
-            </form>
+            <div className="w-full">
+              {/* search input wrapper */}
+              <form className="flex items-center relative">
+                <input
+                  placeholder="Mahsulotlarni qidirish"
+                  name="search"
+                  type="text"
+                  className="w-full bg-brand-dark-800/5 rounded-2xl py-2.5 pl-9 pr-24 xs:py-3.5 xs:pl-12 xs:pr-28"
+                />
+
+                <img
+                  width={24}
+                  height={24}
+                  src={searchImg}
+                  alt="search icon"
+                  className="absolute size-5 left-3 xs:left-3.5 xs:size-6"
+                />
+
+                {/* submit btn */}
+                <button className="absolute text-sm right-1 bg-brand-dark-800 text-brand-creamy-400 py-2.5 px-4 rounded-xl xs:text-base xs:right-1.5">
+                  Qidirish
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* <div className="flex items-center justify-center fixed inset-0 w-full h-screen bg-brand-creamy-400/70">
+      </div> */}
+      {loader && (
+        <div className="flex gap-5 container">
+          <p className="text-xl">Ma'lumotlar yuklanmoqda</p>
+          <Loader size={24} />
+        </div>
+      )}
 
       {/* pages */}
       <Outlet />
