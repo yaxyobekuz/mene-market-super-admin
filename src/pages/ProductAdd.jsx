@@ -32,11 +32,15 @@ const ProductAdd = () => {
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
   const [loader, setLoader] = useState(false);
+  const newProductTypeDropdownRef = useRef(null);
+  const addNewProductTypeInputsWrapperRef = useRef(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [productType, setPproductType] = useState("other");
+  const [newProductTypes, setNewProductTypes] = useState([]);
   const { authData } = useSelector((store) => store.authData);
   const [openSelectedImages, setOpenSelectedImages] = useState(false);
   const [disableFormElements, setDisableFormElements] = useState(false);
+  const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
 
   // select images
   const handleImageChange = (event) => {
@@ -99,11 +103,107 @@ const ProductAdd = () => {
     }
   };
 
-  // close images dropdown
+  // add new product type
+  const handleNewProductTypeAdd = () => {
+    // form elements
+    const elNewProductTypeInput =
+      addNewProductTypeInputsWrapperRef.current.querySelector(
+        ".js-new-product-type-input"
+      );
+    const elNewProductTypeCountInput =
+      addNewProductTypeInputsWrapperRef.current.querySelector(
+        ".js-new-product-type-count-input"
+      );
+
+    // form elements arr
+    const formElements = [elNewProductTypeCountInput, elNewProductTypeInput];
+
+    // checked form elements value arr
+    const checkValidFormElementValue = formElements.map((element) => {
+      if (element.value.length > 0) {
+        element.classList.remove("!border-red-500");
+        return true;
+      } else {
+        element.classList.add("!border-red-500");
+        element.focus();
+        return false;
+      }
+    });
+
+    // checked form elements value
+    const isValidFormElements = checkValidFormElementValue.every(
+      (element) => element
+    );
+
+    const priceToNumber = (value) => {
+      return Number(value.split(".").join(""));
+    };
+
+    // add new product type
+    if (isValidFormElements) {
+      if (newProductTypes.length > 0) {
+        const filteredProductTypes = newProductTypes.find((type) => {
+          return type.name === elNewProductTypeInput.value.trim();
+        });
+
+        // add new product type
+        if (!filteredProductTypes) {
+          setNewProductTypes([
+            ...newProductTypes,
+            {
+              id: newProductTypes.length,
+              name: elNewProductTypeInput.value.trim(),
+              count: priceToNumber(elNewProductTypeCountInput.value),
+            },
+          ]);
+
+          // reset the form elements value to default values
+          elNewProductTypeInput.value = "";
+          elNewProductTypeCountInput.value = "1";
+        } else {
+          toast.info("Ushbu mahsulot turi qo'shib bo'lingan!");
+          elNewProductTypeInput.classList.add("!border-red-500");
+          elNewProductTypeInput.focus();
+        }
+      } else {
+        setNewProductTypes([
+          {
+            id: 0,
+            name: elNewProductTypeInput.value.trim(),
+            count: priceToNumber(elNewProductTypeCountInput.value),
+          },
+        ]);
+
+        // reset the form elements value to default values
+        elNewProductTypeInput.value = "";
+        elNewProductTypeCountInput.value = "1";
+      }
+    } else {
+      toast.info("Ma'lumotlar to'ldirilmagan!");
+    }
+  };
+
+  // delete new product type
+  const handleNewProductTypeDelete = (event) => {
+    const filteredNewProductTypes = newProductTypes.filter((type) => {
+      return type.name !== event.name;
+    });
+
+    setNewProductTypes(filteredNewProductTypes);
+  };
+
+  // close dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setOpenSelectedImages(false);
+      }
+
+      if (
+        newProductTypeDropdownRef.current &&
+        !newProductTypeDropdownRef.current.contains(event.target)
+      ) {
+        setOpenNewProductTypes(false);
       }
     }
 
@@ -111,7 +211,7 @@ const ProductAdd = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownRef]);
+  }, [dropdownRef, newProductTypeDropdownRef]);
 
   // add product
   const handleSubmit = async (event) => {
@@ -157,7 +257,7 @@ const ProductAdd = () => {
       ".js-product-owner-input"
     );
 
-    // form elemnts arr
+    // form elements arr
     const formElements = [
       elProductDescriptionTextarea,
       elProductCountInput,
@@ -167,7 +267,7 @@ const ProductAdd = () => {
       elProductNameInput,
     ];
 
-    // checked form elemnts value arr
+    // checked form elements value arr
     const checkValidFormElementValue = formElements.map((element) => {
       if (element.value.length > 0) {
         element.classList.remove("!border-red-500");
@@ -459,6 +559,178 @@ const ProductAdd = () => {
                   className="js-product-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
                 />
               </label>
+
+              {/* add new product type */}
+              <div className="flex flex-col items-start gap-2">
+                <div>
+                  Yangi mahsulot turini qo'shish
+                </div>
+
+                {/* content  */}
+                <div
+                  ref={newProductTypeDropdownRef}
+                  className="relative w-full"
+                >
+                  {/* name */}
+                  <button
+                    id="add-new-product-type-button"
+                    type="button"
+                    onClick={() => {
+                      if (!disableFormElements) {
+                        setOpenNewProductTypes(!openNewProductTypes);
+                      }
+                    }}
+                    className={`${
+                      disableFormElements ? "cursor-default" : "cursor-pointer"
+                    } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
+                  >
+                    <span>
+                      Yangi mahsulot turlari soni: {newProductTypes.length} ta
+                    </span>
+
+                    <img
+                      width={24}
+                      height={24}
+                      src={arrowDownImg}
+                      alt="arrow down icon"
+                      className="size-6"
+                    />
+                  </button>
+
+                  {/* dropdown */}
+                  {openNewProductTypes && (
+                    <div  className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
+                      {/* dropdown content */}
+                      <div className="h-full pt-4 pb-2 space-y-4">
+                        {/* list wrapper */}
+                        <div>
+                          {newProductTypes.length > 0 ? (
+                            <ol>
+                              {newProductTypes.map((type, index) => {
+                                return (
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                                  >
+                                    <span
+                                      className={`${
+                                        newProductTypes.length < 10
+                                          ? "w-3"
+                                          : newProductTypes.length < 100
+                                          ? "w-5"
+                                          : "w-8"
+                                      } inline-block shrink-0 font-semibold `}
+                                    >
+                                      {index + 1}.
+                                    </span>
+                                    <h3 className="line-clamp-1 font-semibold w-full">
+                                      {type.name}
+                                    </h3>
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleNewProductTypeDelete(type)
+                                      }
+                                      className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
+                                    >
+                                      <img
+                                        width={24}
+                                        height={24}
+                                        src={deleteImg}
+                                        alt="delete icon "
+                                        className="size-6"
+                                      />
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ol>
+                          ) : (
+                            <div className="px-4 opacity-70">
+                              Hali hech qanday mahsulot turi qo'shilmadi!
+                            </div>
+                          )}
+                        </div>
+
+                        {/* divider */}
+                        <div className="px-4">
+                          <div className="w-full h-0.5 bg-brand-dark-800/10 rounded-full"></div>
+                        </div>
+
+                        {/* add new product type */}
+                        <div className="space-y-4 px-4 py-2">
+                          {/* top */}
+                          <div className="flex items-center gap-4">
+                            <span
+                              className={`${
+                                newProductTypes.length < 10
+                                  ? "w-3"
+                                  : newProductTypes.length < 100
+                                  ? "w-5"
+                                  : "w-8"
+                              } inline-block shrink-0 font-semibold `}
+                            >
+                              {newProductTypes.length + 1}.
+                            </span>
+
+                            <b className="w-full">
+                              Yangi mahsulot turini qo'shish
+                            </b>
+
+                            {/* submit btn */}
+                            <button
+                              type="button"
+                              onClick={handleNewProductTypeAdd}
+                              className="hidden shrink-0 main-btn py-2.5 xs:inline-block"
+                            >
+                              Qo'shish
+                            </button>
+                          </div>
+
+                          {/* inputs wrapper */}
+                          <div
+                            ref={addNewProductTypeInputsWrapperRef}
+                            className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row"
+                          >
+                            <label className="flex flex-col items-start gap-2 w-full">
+                              <span>Mahsulot turi</span>
+                              <input
+                                type="text"
+                                name="name"
+                                placeholder="Mahsulot turi"
+                                className="js-new-product-type-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                              />
+                            </label>
+
+                            <label className="flex flex-col items-start gap-2 w-full">
+                              <span>Mahsulot soni</span>
+                              {/* product count */}
+                              <input
+                                type="text"
+                                defaultValue={1}
+                                placeholder="Mahsulot soni"
+                                onChange={formatTheValue}
+                                name="count"
+                                className="js-new-product-type-count-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                              />
+                            </label>
+
+                            {/* submit btn */}
+                            <button
+                              type="button"
+                              onClick={handleNewProductTypeAdd}
+                              className="inline-block shrink-0 main-btn py-2.5 xs:hidden"
+                            >
+                              Qo'shish
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* product type & product owner */}
               <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">

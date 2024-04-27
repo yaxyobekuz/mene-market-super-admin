@@ -209,7 +209,7 @@ const Products = () => {
                   <div className="flex items-end grow">
                     <div className="flex gap-3 w-full">
                       <Link
-                        to="/"
+                        to={"/product/edit/" + product.productId}
                         className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
                       >
                         {/* <img src="" alt="" className="" /> */}
