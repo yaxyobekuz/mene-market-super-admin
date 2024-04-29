@@ -562,9 +562,7 @@ const ProductAdd = () => {
 
               {/* add new product type */}
               <div className="flex flex-col items-start gap-2">
-                <div>
-                  Yangi mahsulot turini qo'shish
-                </div>
+                <div>Yangi mahsulot turini qo'shish</div>
 
                 {/* content  */}
                 <div
@@ -599,7 +597,7 @@ const ProductAdd = () => {
 
                   {/* dropdown */}
                   {openNewProductTypes && (
-                    <div  className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
+                    <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
                       {/* dropdown content */}
                       <div className="h-full pt-4 pb-2 space-y-4">
                         {/* list wrapper */}
@@ -903,7 +901,7 @@ const ProductAdd = () => {
             </li>
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
-                to="/product/products"
+                to="/product"
                 className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img

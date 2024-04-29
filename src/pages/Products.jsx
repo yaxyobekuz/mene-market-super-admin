@@ -143,7 +143,7 @@ const Products = () => {
                 return (
                   <li key={button.id}>
                     <NavLink
-                      to={"/product/products" + button.name}
+                      to={"/product/" + button.name}
                       className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
                       end
                     >
@@ -160,7 +160,7 @@ const Products = () => {
             {/* reload btn */}
             <button
               onClick={getProductsData}
-              className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5 py-4"
+              className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5 py-3 xs:py-4"
             >
               <img
                 width={24}
@@ -396,7 +396,7 @@ const Products = () => {
           ) : (
             // skeleton loader
             <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((item) => (
                 <ProductSkeletonLoader key={item} />
               ))}
             </ul>

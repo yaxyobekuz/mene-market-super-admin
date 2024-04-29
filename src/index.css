@@ -11,6 +11,10 @@
 }
 
 @layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
     @apply bg-brand-creamy-400 text-brand-dark-800 text-base font-medium font-fira-sans;
   }

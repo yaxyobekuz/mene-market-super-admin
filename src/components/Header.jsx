@@ -1,12 +1,10 @@
 import React from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 // images
 import logo from "../assets/images/logo.svg";
 import user from "../assets/images/user.svg";
 const Header = () => {
-  const location = useLocation();
-  const pathArr = location.pathname.split("/").filter((item) => item !== "");
   return (
     <header className="py-5 mb-4 xs:mb-6 sm:mb-8 md:mb-10">
       <div className="container">
@@ -50,11 +48,8 @@ const Header = () => {
             </li>
             <li>
               <NavLink
-                to="/product/products"
-                className={`${
-                  pathArr[0] === "product" && "active"
-                } inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5`}
-                aria-current={pathArr[0] === "product" ? "page" : false}
+                to="/product"
+                className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
                 Mahsulot
               </NavLink>
