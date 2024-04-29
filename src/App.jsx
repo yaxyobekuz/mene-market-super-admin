@@ -16,7 +16,6 @@ import ToastifyContainer from "./components/ToastifyContainer";
 // layouts
 import MainRoot from "./layouts/MainRoot";
 import ProductLayout from "./layouts/ProductLayout";
-import ProductsLayout from "./layouts/ProductsLayout";
 
 // pages
 import Home from "./pages/Home";
@@ -41,13 +40,9 @@ const App = () => {
       >
         <Route index element={<Home />} />
 
+        {/* product page */}
         <Route path="product" element={<ProductLayout />}>
-          <Route index element={<ProductsLayout />} />
-
-          <Route path="products" element={<ProductsLayout />}>
-            <Route index element={<Products />} />
-            <Route path=":productType" element={<Products />} />
-          </Route>
+          <Route index element={<Products />} />
 
           <Route path="add" element={<ProductAdd />} />
 
