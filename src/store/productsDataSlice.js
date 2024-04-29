@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { act } from "react";
 const getAuthdata = localStorage.getItem("auth");
 
 const initialStateValues = {
@@ -22,10 +23,18 @@ export const productsDataSlice = createSlice({
     addProductToProductsData: (state, action) => {
       state.productsData.push(action.payload);
     },
+
+    editProductDataToProductsData: (state, action) => {
+      state.productsData[action.payload.index] = action.payload.productData;
+    },
   },
 });
 
-export const { setProductsData, filterProductsData, addProductToProductsData } =
-  productsDataSlice.actions;
+export const {
+  setProductsData,
+  filterProductsData,
+  addProductToProductsData,
+  editProductDataToProductsData,
+} = productsDataSlice.actions;
 
 export default productsDataSlice.reducer;
