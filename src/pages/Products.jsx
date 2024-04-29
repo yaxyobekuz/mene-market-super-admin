@@ -57,17 +57,16 @@ const Products = () => {
         <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {productsData.map((product, index) => {
             return (
-              <li key={product.productId} className="flex flex-col gap-2.5">
+              <li key={index} className="flex flex-col gap-2.5">
                 {/* image wrapper */}
                 <div className="relative">
                   <img
                     width={295}
                     height={295}
                     src={
-                      product.images[0]
-                        ? "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-                          product.images[0]
-                        : errorImage
+                      product.images &&
+                      "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
+                        product.images[0]
                     }
                     alt="product image"
                     className="w-full aspect-square bg-brand-dark-800/10 rounded-2xl object-cover object-center"
