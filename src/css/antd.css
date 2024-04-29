@@ -63,3 +63,25 @@
 .rc-virtual-list-scrollbar {
   display: none !important;
 }
+
+/* skeleton loader */
+.ant-skeleton *,
+.ant-skeleton {
+  width: 100% !important;
+}
+
+.ant-skeleton-input,
+.ant-skeleton-image {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 8px !important;
+}
+
+.ant-skeleton :is(.ant-skeleton-input, .ant-skeleton-image) {
+  width: 100% !important;
+}
+
+/* image */
+.ant-skeleton-image svg {
+  height: 96px !important;
+}
