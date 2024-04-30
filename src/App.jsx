@@ -23,6 +23,7 @@ import Login from "./pages/Login";
 import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
+import FindProductById from "./pages/FindProductById";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -47,6 +48,8 @@ const App = () => {
           <Route path="add" element={<ProductAdd />} />
 
           <Route path="edit/:productId" element={<EditProduct />} />
+
+          <Route path="find-by-id" element={<FindProductById />} />
         </Route>
       </Route>
     )

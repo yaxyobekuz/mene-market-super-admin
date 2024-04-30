@@ -220,7 +220,7 @@ const Products = () => {
                             product.images[0]
                         }
                         alt="product image"
-                        className="w-full aspect-square bg-brand-dark-800/10 rounded-xl object-cover object-center"
+                        className="w-full aspect-square bg-brand-dark-800/10 rounded-2xl object-cover object-center"
                       />
 
                       {/* badges */}
