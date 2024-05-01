@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 
 // components
 import ConfirmModal from "../components/ConfirmModal";
+import ProductSkeletonLoader from "../components/ProductSkeletonLoader";
 
 // images
 import copyIcon from "../assets/images/copy.svg";
@@ -26,9 +27,13 @@ import doneIcon from "../assets/images/done.svg";
 import searchImg from "../assets/images/search.svg";
 import reloadImg from "../assets/images/reload.svg";
 import deleteIcon from "../assets/images/delete.svg";
+import reviewsImg from "../assets/images/reviews.svg";
+import productsImg from "../assets/images/products.svg";
+import userImg from "../assets/images/edit-user.svg";
 import productAddImg from "../assets/images/product-add.svg";
 import findProductImg from "../assets/images/find-product.svg";
-import ProductSkeletonLoader from "../components/ProductSkeletonLoader";
+import topRightArrowImg from "../assets/images/top-right-arrow.svg";
+import requestsImg from "../assets/images/requests.svg";
 const Products = () => {
   const dispatch = useDispatch();
   const isOnline = navigator.onLine;
@@ -95,11 +100,17 @@ const Products = () => {
     }
   };
 
+  // format number
+  const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   return (
     <>
-      {/* top */}
-      <div>
-        <div className="container">
+      {/* page main content */}
+      <div className="container pb-12">
+        {/* top */}
+        <div className="mb-7">
           <h1 className="mb-7">Mahsulotlar</h1>
 
           {/* product add link */}
@@ -159,7 +170,7 @@ const Products = () => {
           <div className="flex flex-col-reverse gap-4 md:flex-row">
             {/* reload btn */}
             <button
-              onClick={getProductsData}
+              onClick={() => !loader && getProductsData()}
               className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5 py-3 xs:py-4"
             >
               <img
@@ -199,11 +210,9 @@ const Products = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* products */}
-      <div className="py-12">
-        <div className="container">
+        {/* products */}
+        <div>
           {!loader ? (
             <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {productsData.map((product, index) => {
@@ -289,8 +298,8 @@ const Products = () => {
                       {/* product owner */}
                       <div className="flex items-end gap-1 text-sm">
                         <p className="whitespace-nowrap">Ega</p>
-                        <div className="w-full border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap">
+                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                        <p className="whitespace-nowrap truncate">
                           {product.productOwner}
                         </p>
                       </div>
@@ -298,60 +307,47 @@ const Products = () => {
                       {/* product brand */}
                       <div className="flex items-end gap-1 text-sm">
                         <p className="whitespace-nowrap">Brend</p>
-                        <div className="w-full border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap">{product.brand}</p>
+                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                        <p className="whitespace-nowrap truncate">
+                          {product.brand}
+                        </p>
                       </div>
 
                       {/* count */}
                       <div className="flex items-end gap-1 text-sm">
                         <p className="whitespace-nowrap">Sotuvda mavjud</p>
-                        <div className="w-full border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap">
-                          {"0".toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-                          ta
+                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                        <p className="whitespace-nowrap truncate">
+                          {formatNumber(0)} ta
                         </p>
                       </div>
 
                       {/* sold count */}
                       <div className="flex items-end gap-1 text-sm">
                         <p className="whitespace-nowrap">Sotilgan</p>
-                        <div className="w-full border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap">
-                          {product.numberSold
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-                          ta
+                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                        <p className="whitespace-nowrap truncate">
+                          {formatNumber(product.numberSold)} ta
                         </p>
                       </div>
 
                       {/* ads price */}
                       <div className="flex items-end gap-1 text-sm">
                         <p className="whitespace-nowrap">Reklama narxi</p>
-                        <div className="w-full border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap">
-                          {product.advertisingPrice
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-                          so'm
+                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                        <p className="whitespace-nowrap truncate">
+                          {formatNumber(product.advertisingPrice)} so'm
                         </p>
                       </div>
 
                       {/* price wrapper */}
                       <div className="flex items-center flex-wrap gap-x-3 gap-y-0">
-                        <p>
-                          {product.price
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-                          so'm
-                        </p>
+                        <p>{formatNumber(product.price)} so'm</p>
 
                         {/* product scid price */}
                         {product.scidPrice && product.scidPrice !== 0 ? (
                           <del className="text-brand-dark-800/70">
-                            {product.scidPrice
-                              .toString()
-                              .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}{" "}
-                            so'm
+                            {formatNumber(product.scidPrice)} so'm
                           </del>
                         ) : (
                           ""
@@ -383,7 +379,7 @@ const Products = () => {
                               width={32}
                               height={32}
                               src={deleteIcon}
-                              alt=""
+                              alt="delete iconx"
                             />
                           </button>
                         </div>
@@ -404,28 +400,106 @@ const Products = () => {
         </div>
       </div>
 
-      {/* modal (delete product) */}
+      {/* recommendation section */}
+      <section className="py-12">
+        <div className="container">
+          <h2 className="mb-7">Ushbu sahifaga oid</h2>
+
+          {/* list */}
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <li>
+              <Link
+                to="/reviews"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+              >
+                <img
+                  width={192}
+                  height={192}
+                  src={reviewsImg}
+                  alt="go to reviews page"
+                  className="size-28 sm:size-32 md:size-[147px]"
+                />
+                {/* arrow */}
+                <img
+                  width={36}
+                  height={36}
+                  src={topRightArrowImg}
+                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
+                  alt="top right arrow"
+                />
+                <h3 className="text-center text-lg xs:text-xl">
+                  Izohlarni boshqarish
+                </h3>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/requests"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+              >
+                <img
+                  width={147}
+                  height={147}
+                  src={requestsImg}
+                  alt="requests image"
+                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:size-[147px]"
+                />
+                {/* arrow */}
+                <img
+                  width={36}
+                  height={36}
+                  src={topRightArrowImg}
+                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
+                  alt="top right arrow"
+                />
+                <h3 className="text-center text-lg xs:text-xl">Murojaatlar</h3>
+              </Link>
+            </li>
+            <li className="col-span-1 sm:col-span-2 lg:col-span-1">
+              <Link
+                to="/users"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+              >
+                <img
+                  width={192}
+                  height={192}
+                  src={userImg}
+                  alt="user image"
+                  className="size-28 sm:size-32 md:size-[147px]"
+                />
+
+                {/* arrow */}
+                <img
+                  width={36}
+                  height={36}
+                  src={topRightArrowImg}
+                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
+                  alt="top right arrow"
+                />
+                <h3 className="text-center text-lg xs:text-xl">
+                  Foydalanuvchilarni boshqarish
+                </h3>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* confirm modal (delete product) */}
       {openModal && (
         <ConfirmModal
-          setOpenModal={setOpenModal}
-          title="Haqiqatdan ham ushbu mahsulotni o'chirmoqchimisiz?"
-          description={productData.description}
-          subtitle="Mahsulot nomi:"
-          image={{
-            src: productData.images[0],
-            alt: "product image",
-          }}
           loader={loader2}
-          button={{
-            cancel: {
-              body: "Bekor qilish",
-              action: null,
-            },
-            confirm: {
-              body: "O'chirish",
-              action: deleteProduct,
-            },
-          }}
+          action={deleteProduct}
+          subtitle="Mahsulot nomi:"
+          description={productData.description}
+          closeModal={() => setOpenModal(false)}
+          button={{ cancel: "Bekor qilish", confirm: "O'chirish" }}
+          title="Haqiqatdan ham ushbu mahsulotni o'chirmoqchimisiz?"
+          imageSrc={
+            productData.images.length > 0 &&
+            "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
+              productData.images[0]
+          }
         />
       )}
     </>
