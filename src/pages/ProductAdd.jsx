@@ -374,7 +374,7 @@ const ProductAdd = () => {
 
   return (
     <>
-      {/* page body (main content) */}
+      {/* page main content */}
       <div className="pb-12">
         <div className="container">
           <h1 className="mb-7">Yangi mahsulot qo'shish</h1>
@@ -852,7 +852,7 @@ const ProductAdd = () => {
             <li>
               <Link
                 to="/product/find-by-id"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
                   width={192}
@@ -877,7 +877,7 @@ const ProductAdd = () => {
             <li>
               <Link
                 to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
                   width={192}
@@ -902,7 +902,7 @@ const ProductAdd = () => {
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
                 to="/product"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
                   width={192}
