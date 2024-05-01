@@ -50,7 +50,6 @@ const Products = () => {
     setLoader(true);
 
     // fetch products data
-
     if (isOnline) {
       axios
         .get("/Product", {
