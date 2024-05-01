@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
 // axios
@@ -26,52 +26,55 @@ import copyIcon from "../assets/images/copy.svg";
 import doneIcon from "../assets/images/done.svg";
 import searchImg from "../assets/images/search.svg";
 import reloadImg from "../assets/images/reload.svg";
+import userImg from "../assets/images/edit-user.svg";
 import deleteIcon from "../assets/images/delete.svg";
 import reviewsImg from "../assets/images/reviews.svg";
-import productsImg from "../assets/images/products.svg";
-import userImg from "../assets/images/edit-user.svg";
+import requestsImg from "../assets/images/requests.svg";
 import productAddImg from "../assets/images/product-add.svg";
 import findProductImg from "../assets/images/find-product.svg";
 import topRightArrowImg from "../assets/images/top-right-arrow.svg";
-import requestsImg from "../assets/images/requests.svg";
 const Products = () => {
   const dispatch = useDispatch();
   const isOnline = navigator.onLine;
-  const [error, setError] = useState(false);
+  const searchInputRef = useRef(null);
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [productData, setProductData] = useState([]);
   const { authData } = useSelector((store) => store.authData);
   const { productsData } = useSelector((store) => store.productsData);
+  const [products, setProducts] = useState(productsData ? productsData : []);
 
   // get products data
   const getProductsData = () => {
-    setError(false);
     setLoader(true);
 
     // fetch products data
-    axios
-      .get("/Product", {
-        headers: {
-          Authorization: "Bearer " + authData.data.token,
-        },
-      })
-      .then((res) => {
-        dispatch(setProductsData(res.data));
-      })
-      .catch(() => {
-        setError(true);
-        // error notification
-        if (isOnline) {
-          toast.error("Ma'lumotlarni yuklab bo'lmadi");
-        } else {
-          toast.error("Internet aloqasi mavjud emas!");
-        }
-      })
-      .finally(() => setLoader(false));
-  };
 
+    if (isOnline) {
+      axios
+        .get("/Product", {
+          headers: {
+            Authorization: "Bearer " + authData.data.token,
+          },
+        })
+        .then((res) => {
+          dispatch(setProductsData(res.data));
+          setProducts(res.data);
+        })
+        .catch(() => {
+          // error notification
+          if (isOnline) {
+            toast.error("Ma'lumotlarni yuklab bo'lmadi");
+          } else {
+            toast.error("Internet aloqasi mavjud emas!");
+          }
+        })
+        .finally(() => setLoader(false));
+    } else {
+      toast.error("Internet aloqasi mavjud emas!");
+    }
+  };
   useEffect(() => {
     if (productsData.length === 0) {
       getProductsData();
@@ -104,6 +107,28 @@ const Products = () => {
   const formatNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
+
+  // search products
+  const handleProductsSearch = (event) => {
+    event.preventDefault();
+    const input = event.target.querySelector(".js-input");
+    const value = input.value.trim().toLowerCase();
+
+    if (value.length > 0) {
+      const filteredProducts = productsData.filter((product) => {
+        return product.brand.toLowerCase().includes(value);
+      });
+
+      setProducts(filteredProducts);
+    } else {
+      productsData.length !== products.length && setProducts(productsData);
+    }
+  };
+
+  // set products
+  useEffect(() => {
+    setProducts(productsData);
+  }, [productsData]);
 
   return (
     <>
@@ -170,7 +195,10 @@ const Products = () => {
           <div className="flex flex-col-reverse gap-4 md:flex-row">
             {/* reload btn */}
             <button
-              onClick={() => !loader && getProductsData()}
+              onClick={() => {
+                !loader && getProductsData(),
+                  (searchInputRef.current.value = "");
+              }}
               className="flex items-center justify-center gap-2 shrink-0 bg-brand-dark-800/5 rounded-xl px-5 py-3 xs:py-4"
             >
               <img
@@ -186,12 +214,16 @@ const Products = () => {
             {/* search */}
             <div className="w-full">
               {/* search input wrapper */}
-              <form className="flex items-center relative">
+              <form
+                onSubmit={handleProductsSearch}
+                className="flex items-center relative"
+              >
                 <input
                   placeholder="Mahsulotlarni qidirish"
                   name="search"
                   type="text"
-                  className="w-full bg-brand-dark-800/5 rounded-2xl py-2.5 pl-9 pr-24 xs:py-3.5 xs:pl-12 xs:pr-28"
+                  ref={searchInputRef}
+                  className="js-input w-full bg-brand-dark-800/5 rounded-2xl py-2.5 pl-9 pr-24 xs:py-3.5 xs:pl-12 xs:pr-28"
                 />
 
                 <img
@@ -215,179 +247,180 @@ const Products = () => {
         <div>
           {!loader ? (
             <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {productsData.map((product, index) => {
-                return (
-                  <li key={index} className="flex flex-col gap-2.5">
-                    {/* image wrapper */}
-                    <div className="relative">
-                      <img
-                        width={295}
-                        height={295}
-                        src={
-                          product.images &&
-                          "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-                            product.images[0]
-                        }
-                        alt="product image"
-                        className="w-full aspect-square bg-brand-dark-800/10 rounded-2xl object-cover object-center"
-                      />
-
-                      {/* badges */}
-                      <div className="flex items-center gap-2 w-full flex-wrap absolute top-4 inset-x-0 px-4">
-                        {product.isArchived ? (
-                          <span className="bg-red-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
-                            Arxivlangan
-                          </span>
-                        ) : (
-                          <span className="bg-green-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
-                            Sotuvda
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* content header */}
-                    <div className="flex items-center justify-between">
-                      <p>{product.productType}</p>
-                      <button
-                        className="flex items-center gap-0.5 disabled:opacity-70"
-                        onClick={(e) => {
-                          const btn = e.currentTarget;
-                          const copyIcon = btn.querySelector(".js-copy-icon");
-                          const doneIcon = btn.querySelector(".js-done-icon");
-
-                          // set disabled
-                          btn.disabled = true;
-                          copyIcon.classList.add("hidden");
-                          doneIcon.classList.remove("hidden");
-                          navigator.clipboard.writeText(product.productId);
-
-                          // remove disabled
-                          setTimeout(() => {
-                            btn.disabled = false;
-                            copyIcon.classList.remove("hidden");
-                            doneIcon.classList.add("hidden");
-                          }, 2000);
-                        }}
-                      >
-                        ID{" "}
+              {products &&
+                products.map((product, index) => {
+                  return (
+                    <li key={index} className="flex flex-col gap-2.5">
+                      {/* image wrapper */}
+                      <div className="relative">
                         <img
-                          width={20}
-                          height={20}
-                          src={copyIcon}
-                          alt="copy icon"
-                          className="js-copy-icon"
+                          width={295}
+                          height={295}
+                          src={
+                            product.images &&
+                            "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
+                              product.images[0]
+                          }
+                          alt="product image"
+                          className="w-full aspect-square bg-brand-dark-800/10 rounded-2xl object-cover object-center"
                         />
-                        <img
-                          width={20}
-                          height={20}
-                          src={doneIcon}
-                          alt="done icon"
-                          className="js-done-icon hidden"
-                        />
-                      </button>
-                    </div>
 
-                    {/* main */}
-                    <div className="flex flex-col grow gap-2">
-                      {/* title */}
-                      <h3 className="text-lg font-semibold">
-                        Lorem ipsum dolor sit amet consectetur.
-                      </h3>
-
-                      {/* product owner */}
-                      <div className="flex items-end gap-1 text-sm">
-                        <p className="whitespace-nowrap">Ega</p>
-                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap truncate">
-                          {product.productOwner}
-                        </p>
-                      </div>
-
-                      {/* product brand */}
-                      <div className="flex items-end gap-1 text-sm">
-                        <p className="whitespace-nowrap">Brend</p>
-                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap truncate">
-                          {product.brand}
-                        </p>
-                      </div>
-
-                      {/* count */}
-                      <div className="flex items-end gap-1 text-sm">
-                        <p className="whitespace-nowrap">Sotuvda mavjud</p>
-                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap truncate">
-                          {formatNumber(0)} ta
-                        </p>
-                      </div>
-
-                      {/* sold count */}
-                      <div className="flex items-end gap-1 text-sm">
-                        <p className="whitespace-nowrap">Sotilgan</p>
-                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap truncate">
-                          {formatNumber(product.numberSold)} ta
-                        </p>
-                      </div>
-
-                      {/* ads price */}
-                      <div className="flex items-end gap-1 text-sm">
-                        <p className="whitespace-nowrap">Reklama narxi</p>
-                        <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                        <p className="whitespace-nowrap truncate">
-                          {formatNumber(product.advertisingPrice)} so'm
-                        </p>
-                      </div>
-
-                      {/* price wrapper */}
-                      <div className="flex items-center flex-wrap gap-x-3 gap-y-0">
-                        <p>{formatNumber(product.price)} so'm</p>
-
-                        {/* product scid price */}
-                        {product.scidPrice && product.scidPrice !== 0 ? (
-                          <del className="text-brand-dark-800/70">
-                            {formatNumber(product.scidPrice)} so'm
-                          </del>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-
-                      {/* buttons wrapper */}
-                      <div className="flex items-end grow">
-                        <div className="flex gap-3 w-full">
-                          <Link
-                            to={"/product/edit/" + product.productId}
-                            className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
-                          >
-                            {/* <img src="" alt="" /> */}
-                            <span className="font-semibold text-center">
-                              Tahrirlash
+                        {/* badges */}
+                        <div className="flex items-center gap-2 w-full flex-wrap absolute top-4 inset-x-0 px-4">
+                          {product.isArchived ? (
+                            <span className="bg-red-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
+                              Arxivlangan
                             </span>
-                          </Link>
-
-                          {/* delete product btn */}
-                          <button
-                            onClick={() => {
-                              setProductData(product);
-                              setOpenModal(true);
-                            }}
-                            className="flex items-center justify-center w-12 shrink-0 aspect-square bg-brand-dark-800 rounded-xl"
-                          >
-                            <img
-                              width={32}
-                              height={32}
-                              src={deleteIcon}
-                              alt="delete iconx"
-                            />
-                          </button>
+                          ) : (
+                            <span className="bg-green-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
+                              Sotuvda
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </li>
-                );
-              })}
+
+                      {/* content header */}
+                      <div className="flex items-center justify-between">
+                        <p>{product.productType}</p>
+                        <button
+                          className="flex items-center gap-0.5 disabled:opacity-70"
+                          onClick={(e) => {
+                            const btn = e.currentTarget;
+                            const copyIcon = btn.querySelector(".js-copy-icon");
+                            const doneIcon = btn.querySelector(".js-done-icon");
+
+                            // set disabled
+                            btn.disabled = true;
+                            copyIcon.classList.add("hidden");
+                            doneIcon.classList.remove("hidden");
+                            navigator.clipboard.writeText(product.productId);
+
+                            // remove disabled
+                            setTimeout(() => {
+                              btn.disabled = false;
+                              copyIcon.classList.remove("hidden");
+                              doneIcon.classList.add("hidden");
+                            }, 2000);
+                          }}
+                        >
+                          ID{" "}
+                          <img
+                            width={20}
+                            height={20}
+                            src={copyIcon}
+                            alt="copy icon"
+                            className="js-copy-icon"
+                          />
+                          <img
+                            width={20}
+                            height={20}
+                            src={doneIcon}
+                            alt="done icon"
+                            className="js-done-icon hidden"
+                          />
+                        </button>
+                      </div>
+
+                      {/* main */}
+                      <div className="flex flex-col grow gap-2">
+                        {/* title */}
+                        <h3 className="text-lg font-semibold">
+                          Lorem ipsum dolor sit amet consectetur.
+                        </h3>
+
+                        {/* product owner */}
+                        <div className="flex items-end gap-1 text-sm">
+                          <p className="whitespace-nowrap">Ega</p>
+                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                          <p className="whitespace-nowrap truncate">
+                            {product.productOwner}
+                          </p>
+                        </div>
+
+                        {/* product brand */}
+                        <div className="flex items-end gap-1 text-sm">
+                          <p className="whitespace-nowrap">Brend</p>
+                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                          <p className="whitespace-nowrap truncate">
+                            {product.brand}
+                          </p>
+                        </div>
+
+                        {/* count */}
+                        <div className="flex items-end gap-1 text-sm">
+                          <p className="whitespace-nowrap">Sotuvda mavjud</p>
+                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                          <p className="whitespace-nowrap truncate">
+                            {formatNumber(0)} ta
+                          </p>
+                        </div>
+
+                        {/* sold count */}
+                        <div className="flex items-end gap-1 text-sm">
+                          <p className="whitespace-nowrap">Sotilgan</p>
+                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                          <p className="whitespace-nowrap truncate">
+                            {formatNumber(product.numberSold)} ta
+                          </p>
+                        </div>
+
+                        {/* ads price */}
+                        <div className="flex items-end gap-1 text-sm">
+                          <p className="whitespace-nowrap">Reklama narxi</p>
+                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
+                          <p className="whitespace-nowrap truncate">
+                            {formatNumber(product.advertisingPrice)} so'm
+                          </p>
+                        </div>
+
+                        {/* price wrapper */}
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-0">
+                          <p>{formatNumber(product.price)} so'm</p>
+
+                          {/* product scid price */}
+                          {product.scidPrice && product.scidPrice !== 0 ? (
+                            <del className="text-brand-dark-800/70">
+                              {formatNumber(product.scidPrice)} so'm
+                            </del>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        {/* buttons wrapper */}
+                        <div className="flex items-end grow">
+                          <div className="flex gap-3 w-full">
+                            <Link
+                              to={"/product/edit/" + product.productId}
+                              className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
+                            >
+                              {/* <img src="" alt="" /> */}
+                              <span className="font-semibold text-center">
+                                Tahrirlash
+                              </span>
+                            </Link>
+
+                            {/* delete product btn */}
+                            <button
+                              onClick={() => {
+                                setProductData(product);
+                                setOpenModal(true);
+                              }}
+                              className="flex items-center justify-center w-12 shrink-0 aspect-square bg-brand-dark-800 rounded-xl"
+                            >
+                              <img
+                                width={32}
+                                height={32}
+                                src={deleteIcon}
+                                alt="delete iconx"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
             </ul>
           ) : (
             // skeleton loader
