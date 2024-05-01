@@ -24,6 +24,7 @@ import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import FindProductById from "./pages/FindProductById";
+import Users from "./pages/Users";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -41,7 +42,7 @@ const App = () => {
       >
         <Route index element={<Home />} />
 
-        {/* product page */}
+        {/* product */}
         <Route path="product" element={<ProductLayout />}>
           <Route index element={<Products />} />
 
@@ -51,6 +52,9 @@ const App = () => {
 
           <Route path="find-by-id" element={<FindProductById />} />
         </Route>
+
+        {/* users */}
+        <Route path="users" element={<Users />} />
       </Route>
     )
   );
