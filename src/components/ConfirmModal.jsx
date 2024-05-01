@@ -1,61 +1,55 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-// images
-import crossIcon from "../assets/images/cross.svg";
+// components
 import Loader from "./Loader";
 const ConfirmModal = ({
   description,
   title,
+  action,
   subtitle,
-  image,
-  button,
-  setOpenModal,
+  imageSrc,
+  closeModal,
   loader,
+  button,
 }) => {
-  const closeModal = () => {
-    if (!loader) {
-      setOpenModal(false);
-    }
-  };
-  console.log(loader);
-  return (
-    <div className="flex items-center justify-center fixed inset-0 backdrop-filter backdrop-blur bg-brand-dark-800/50">
-      <div className="w-[425px] bg-brand-creamy-400 rounded-2xl shadow-xl">
-        {/* modal header */}
-        <div className="flex justify-end w-full py-3 px-5 bg-brand-creamy-600 rounded-t-2xl">
-          <button onClick={closeModal} className="rounded-full">
-            <img
-              width={28}
-              height={28}
-              src={crossIcon}
-              alt="cross icon"
-              className="size-[26px]"
-            />
-          </button>
-        </div>
 
-        {/* modal body */}
+  // close modal with escape key
+  useEffect(() => {
+    if (!loader) {
+      const handleKeyDown = (e) => {
+        e.key === "Escape" && closeModal();
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [closeModal]);
+
+  return (
+    <div className="flex items-center justify-center fixed inset-0">
+      {/* modal content */}
+      <div className="z-10 w-[425px] bg-brand-creamy-400 rounded-2xl shadow-xl">
+        {/* content header */}
+        <div className="w-full h-7 bg-brand-creamy-600 rounded-t-2xl"></div>
+
+        {/* content body */}
         <div className="py-4 px-5">
           {/* title */}
           <h1 className="!text-lg !leading-6 mb-3">
-            {title ? (
-              <span>{title}</span>
-            ) : (
-              <span>Haqiqatdan ham ushbu amalni bajarmoqchimisiz?</span>
-            )}
+            {title ? title : "Haqiqatdan ham ushbu amalni bajarmoqchimisiz?"}
           </h1>
 
           {/* mid content (desciption wrapper) */}
           <div className="flex items-center gap-2 mb-6">
-            {image && (
+            {imageSrc && (
               <img
                 width={40}
                 height={40}
-                src={
-                  "https://menemarket-cdcc7e43d37f.herokuapp.com/" + image.src
-                }
-                alt={image.alt}
-                className="size-10 shrink-0 bg-brand-dark-800/20 rounded-md"
+                src={imageSrc}
+                className="size-10 shrink-0 bg-brand-dark-800/20 rounded-md object-cover"
               />
             )}
 
@@ -66,52 +60,41 @@ const ConfirmModal = ({
                   {subtitle}
                 </h2>
               )}
+
               {description && <p className="line-clamp-1">{description}</p>}
             </div>
           </div>
 
-          {/* modal actions (buttons) */}
+          {/* buttons */}
           <div className="flex justify-end gap-4 w-full">
             {/* cancel btn */}
             <button
               disabled={loader}
-              onClick={() => {
-                button.cancel.action && button.cancel.action();
-                closeModal();
-              }}
-              className={`${
-                button && button.cancel.theme
-                  ? button.cancel.theme.toLowerCase() === "dark"
-                    ? "bg-brand-dark-800 text-brand-creamy-400"
-                    : "text-brand-dark-800 font-bold"
-                  : "text-brand-dark-800 font-bold"
-              } border-2 border-brand-dark-800 rounded-lg px-8 py-2`}
+              onClick={() => !loader && closeModal()}
+              className="flex items-center justify-center w-36 h-11 border-2 border-brand-dark-800 rounded-lg"
             >
-              {button.cancel.body && button ? button.cancel.body : "Yo'q"}
+              {button ? button.cancel : "Yo'q"}
             </button>
 
             {/* confirm btn */}
             <button
-              onClick={() => button.confirm.action && button.confirm.action()}
+              onClick={() => !loader && action()}
+              disabled={loader}
               className={`${
-                button && button.confirm.theme
-                  ? button.confirm.theme.toLowerCase() === "light"
-                    ? "text-brand-dark-800 font-bold"
-                    : "bg-brand-dark-800 text-brand-creamy-400"
-                  : "bg-brand-dark-800 text-brand-creamy-400"
-              } border-2 border-brand-dark-800 rounded-lg px-8 py-2`}
+                loader && "cursor-not-allowed"
+              } flex items-center justify-center w-36 h-11 bg-brand-dark-800 rounded-lg text-brand-creamy-400`}
             >
-              {loader ? (
-                <Loader size={20} />
-              ) : button.confirm.body && button ? (
-                button.confirm.body
-              ) : (
-                "Ha"
-              )}
+              {loader ? <Loader size={20} /> : button ? button.confirm : "Ha"}
             </button>
           </div>
         </div>
       </div>
+
+      {/* overlay */}
+      <div
+        onClick={() => !loader && closeModal()}
+        className="absolute z-0 w-full h-full backdrop-filter backdrop-blur bg-brand-dark-800/50"
+      ></div>
     </div>
   );
 };
