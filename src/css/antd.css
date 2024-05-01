@@ -1,6 +1,5 @@
 /* antd select */
-
-:is(.ant-select, .ant-dropdown, .ant-space) *,
+:is(.ant-select, .ant-dropdown, .ant-space, .ant-popover) *,
 .ant-select-item-option-content {
   font-family: "Fira sans", sans-serif !important;
   font-weight: 500 !important;
@@ -84,4 +83,40 @@
 /* image */
 .ant-skeleton-image svg {
   height: 96px !important;
+}
+
+/* popover */
+.ant-popover-inner {
+  background: #fef6eb !important;
+  border: 2px solid #292524 !important;
+  padding: 12px 0px !important;
+}
+
+.ant-popover-arrow {
+  width: 12px !important;
+  height: 12px !important;
+  background: #fef6eb !important;
+  border-top: 2px solid #292524 !important;
+  border-left: 2px solid #292524 !important;
+  transform: translate(-5px, 5px) rotate(-135deg) !important;
+}
+
+.ant-popover-arrow::before,
+.ant-popover-arrow::after {
+  display: none !important;
+}
+
+.ant-popover-placement-bottom .ant-popover-arrow {
+  transform: translate(-5px, -5px) rotate(45deg) !important;
+}
+
+@media only screen and (max-width: 425px) {
+  .ant-popover * {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+
+  .ant-popover-inner {
+    padding: 6px 0px !important;
+  }
 }
