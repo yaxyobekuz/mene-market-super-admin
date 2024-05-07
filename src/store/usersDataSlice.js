@@ -12,19 +12,19 @@ export const usersDataSlice = createSlice({
       state.usersData = action.payload;
     },
 
-    deleteUserData: (state, action) => {
+    deleteUserData: (state, action) => {    
       state.usersData = state.usersData.filter(
         (user) => user.userId !== action.payload
       );
     },
 
-    archiveUser: (state, action) => {
+    editUserData: (state, action) => {
       state.usersData[action.payload.index] = action.payload.userData;
     },
   },
 });
 
-export const { setUsersData, deleteUserData, archiveUser } =
+export const { setUsersData, deleteUserData, editUserData } =
   usersDataSlice.actions;
 
 export default usersDataSlice.reducer;

@@ -12,7 +12,6 @@ const ConfirmModal = ({
   loader,
   button,
 }) => {
-
   // close modal with escape key
   useEffect(() => {
     if (!loader) {
@@ -29,7 +28,7 @@ const ConfirmModal = ({
   }, [closeModal]);
 
   return (
-    <div className="flex items-center justify-center fixed inset-0">
+    <div className="flex items-center justify-center fixed inset-0 z-10">
       {/* modal content */}
       <div className="z-10 w-[425px] bg-brand-creamy-400 rounded-2xl shadow-xl">
         {/* content header */}

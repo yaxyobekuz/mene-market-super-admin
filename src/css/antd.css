@@ -86,6 +86,10 @@
 }
 
 /* popover */
+.ant-popover {
+  z-index: 2 !important;
+}
+
 .ant-popover-inner {
   background: #fef6eb !important;
   border: 2px solid #292524 !important;
