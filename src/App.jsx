@@ -20,11 +20,11 @@ import ProductLayout from "./layouts/ProductLayout";
 // pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Users from "./pages/Users";
 import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import FindProductById from "./pages/FindProductById";
-import Users from "./pages/Users";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -54,7 +54,7 @@ const App = () => {
         </Route>
 
         {/* users */}
-        <Route path="users" element={<Users />} />
+        <Route path="users/:usersPageIndex?" element={<Users />} />
       </Route>
     )
   );
