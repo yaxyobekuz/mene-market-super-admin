@@ -349,9 +349,6 @@ const ProductAdd = () => {
             elProductDescriptionTextarea.value = "";
             elProductAkciyaPriceInput.value = "";
             setSelectedImages([]);
-
-            // undisable form elements
-            setDisableFormElements(false);
           })
           .catch(() => {
             const isOnline = navigator.onLine;
@@ -363,7 +360,7 @@ const ProductAdd = () => {
               toast.error("Internet aloqasi mavjud emas!");
             }
           })
-          .finally(() => setLoader(false));
+          .finally(() => setLoader(false), setDisableFormElements(false));
       } else {
         toast.error("Iltimos bironbir rasm yuklang!");
       }
