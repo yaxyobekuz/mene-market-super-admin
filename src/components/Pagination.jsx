@@ -10,7 +10,7 @@ const Pagination = ({ currentIndex, lastIndex, link }) => {
   };
 
   return (
-    <div className="flex items-center justify-center gap-5">
+    <div className="flex items-center justify-center gap-2">
       {/* previous */}
       {index.current > 1 ? (
         <Link
@@ -39,8 +39,8 @@ const Pagination = ({ currentIndex, lastIndex, link }) => {
       )}
 
       {/* page number */}
-      <span className="min-w-20 text-center text-lg">
-        Sahifa {index.current}
+      <span className="min-w-36 text-center text-lg">
+        Sahifa {index.current} / {lastIndex}
       </span>
 
       {/* next */}
