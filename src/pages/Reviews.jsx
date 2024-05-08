@@ -276,7 +276,7 @@ const Reviews = () => {
                       </div>
 
                       {/* filter reviews with archives */}
-                      <div className="flex justify-center gap-3 overflow-x-auto hidden-scroll !min-w-0 bg-brand-dark-800/5 p-1.5 rounded-2xl md:justify-normal">
+                      <div className="flex gap-3 overflow-x-auto hidden-scroll !min-w-0 bg-brand-dark-800/5 p-1.5 rounded-2xl xs:justify-center md:justify-normal">
                         <button className="main-btn py-2.5 px-4 transition-colors hover:bg-brand-dark-800 hover:text-white">
                           Barchasi
                         </button>

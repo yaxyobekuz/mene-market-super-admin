@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 // components
 import Loader from "../components/Loader";
@@ -31,71 +31,60 @@ import topRightArrowImg from "../assets/images/top-right-arrow.svg";
 
 const FindProductById = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isOnline = navigator.onLine;
+  const { productId } = useParams();
   const [loader, setLoader] = useState(false);
-  const [productData, setProductData] = useState(null);
   const [loader2, setLoader2] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [productData, setProductData] = useState(null);
   const { authData } = useSelector((store) => store.authData);
   const { productsData } = useSelector((store) => store.productsData);
 
-  const getProductByServer = (id) => {
-    axios
-      .get("/Product/ById?id=" + id, {
-        headers: {
-          Authorization: "Bearer " + authData.data.token,
-        },
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          setProductData(res.data);
-        } else {
-          setLoader(false);
-          toast.error("Ma'lumotlarni yuklab bo'lmadi!");
-        }
-      })
-      .catch(() => toast.error("Ma'lumotlarni yuklab bo'lmadi!"))
-      .finally(() => setLoader(false));
-  };
-
-  // handle (get product)
-  const getProduct = (event) => {
-    event.preventDefault();
-    const input = event.target.querySelector(".js-input");
-    const id = input.value.trim();
-
+  // (get product)
+  useEffect(() => {
     if (isOnline) {
-      // check value
-      if (guidRegex.test(id)) {
-        setLoader(true);
-        // get product
-        if (!loader) {
-          setProductData(null);
-          // find product by products data
-          if (productsData.length > 0) {
-            const findProduct = productsData.find((product) => {
-              return product.productId === id;
-            });
+      if (productId) {
+        // check id
+        if (guidRegex.test(productId)) {
+          setLoader(true);
 
-            if (findProduct) {
-              setProductData(findProduct);
-              setLoader(false);
-            } else {
-              getProductByServer(id);
-            }
-            //
-          } else {
-            getProductByServer(id);
-          }
-          //
+          axios
+            .get("/Product/ById?id=" + productId, {
+              headers: {
+                Authorization: "Bearer " + authData.data.token,
+              },
+            })
+            .then((res) => {
+              if (res.status === 200) {
+                setProductData(res.data);
+              } else {
+                toast.error("Ushbu mahsulot ma'lumotlari mavjud emas!");
+              }
+            })
+            .catch(() => toast.error("Ma'lumotlarni yuklab bo'lmadi!"))
+            .finally(() => setLoader(false));
+        } else {
+          toast.error("Muqobil id kiritilmadi!");
         }
-        //
-      } else {
-        toast.error("Muqobil id kiritilmadi!");
       }
-      //
     } else {
       toast.error("Internet aloqasi mavjud emas!");
+    }
+  }, [productId]);
+
+  const getProduct = (event) => {
+    event.preventDefault();
+    // format value
+    const value = event.target.querySelector(".js-input").value;
+    const id = value
+      .trim()
+      .split("")
+      .filter((i) => i !== "/")
+      .join("");
+
+    if (!loader) {
+      navigate("/product/find-by-id/" + id);
     }
   };
 
@@ -136,6 +125,7 @@ const FindProductById = () => {
           <form onSubmit={getProduct} className="flex items-center relative">
             <input
               placeholder="Qidirish uchun idni bu yerga kiriting"
+              defaultValue={productId}
               name="search"
               type="text"
               className="js-input w-full bg-brand-dark-800/5 rounded-2xl py-2.5 pl-9 pr-24 xs:py-3.5 xs:pl-12 xs:pr-28"

@@ -51,7 +51,7 @@ const App = () => {
 
           <Route path="edit/:productId" element={<EditProduct />} />
 
-          <Route path="find-by-id" element={<FindProductById />} />
+          <Route path="find-by-id/:productId?" element={<FindProductById />} />
         </Route>
 
         {/* users */}
