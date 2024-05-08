@@ -25,6 +25,7 @@ import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import FindProductById from "./pages/FindProductById";
+import Reviews from "./pages/Reviews";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -55,6 +56,9 @@ const App = () => {
 
         {/* users */}
         <Route path="users/:usersPageIndex?" element={<Users />} />
+
+        {/* comments */}
+        <Route path="reviews/:reviewsPageIndex?" element={<Reviews />} />
       </Route>
     )
   );
