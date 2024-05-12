@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+  Outlet,
   Route,
   RouterProvider,
   createBrowserRouter,
@@ -26,6 +27,8 @@ import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import FindProductById from "./pages/FindProductById";
 import Reviews from "./pages/Reviews";
+import ProductRequests from "./pages/ProductRequests";
+import AddNews from "./pages/AddNews";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -59,6 +62,17 @@ const App = () => {
 
         {/* comments */}
         <Route path="reviews/:reviewsPageIndex?" element={<Reviews />} />
+
+        {/* product requests */}
+        <Route
+          path="product-requests/:productRequestsPageIndex?"
+          element={<ProductRequests />}
+        />
+
+        {/* news */}
+        <Route path="news" element={<Outlet />}>
+          <Route path="add" element={<AddNews />} />
+        </Route>
       </Route>
     )
   );
