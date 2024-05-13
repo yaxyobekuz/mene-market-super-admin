@@ -20,15 +20,16 @@ import ProductLayout from "./layouts/ProductLayout";
 
 // pages
 import Home from "./pages/Home";
+import News from "./pages/News";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
+import AddNews from "./pages/AddNews";
+import Reviews from "./pages/Reviews";
 import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
-import FindProductById from "./pages/FindProductById";
-import Reviews from "./pages/Reviews";
 import ProductRequests from "./pages/ProductRequests";
-import AddNews from "./pages/AddNews";
+import FindProductById from "./pages/FindProductById";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -68,9 +69,10 @@ const App = () => {
           path="product-requests/:productRequestsPageIndex?"
           element={<ProductRequests />}
         />
-
+  
         {/* news */}
         <Route path="news" element={<Outlet />}>
+          <Route index path=":newsPageIndex?" element={<News />} />
           <Route path="add" element={<AddNews />} />
         </Route>
       </Route>
