@@ -21,9 +21,11 @@ import Loader from "../components/Loader";
 // images
 import image from "../assets/images/image.png";
 import plusImg from "../assets/images/plus.svg";
+import newsImg from "../assets/images/news.svg";
 import deleteImg from "../assets/images/delete.svg";
 import reviewsImg from "../assets/images/reviews.svg";
 import productsImg from "../assets/images/products.svg";
+import requestsImg from "../assets/images/requests.svg";
 import arrowDownImg from "../assets/images/down-arrow.svg";
 import findProductImg from "../assets/images/find-product.svg";
 import topRightArrowImg from "../assets/images/top-right-arrow.svg";
@@ -209,7 +211,7 @@ const AddNews = () => {
     }
   };
 
-  return (  
+  return (
     <>
       {/* page main content */}
       <div className="pb-12">
@@ -312,42 +314,18 @@ const AddNews = () => {
       <section className="py-12">
         <div className="container">
           <h2 className="mb-7">Ushbu sahifaga oid</h2>
+
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <li>
               <Link
-                to="/product/find-by-id"
+                to="/news"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
                   width={192}
                   height={192}
-                  src={findProductImg}
-                  alt="go to find product by id page"
-                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:w-48 md:h-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotni qidirish
-                </h3>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={reviewsImg}
-                  alt="go to reviews page"
+                  src={newsImg}
+                  alt="news page"
                   className="size-28 sm:size-32 md:size-[147px]"
                 />
                 {/* arrow */}
@@ -359,10 +337,11 @@ const AddNews = () => {
                   alt="top right arrow"
                 />
                 <h3 className="text-center text-lg xs:text-xl">
-                  Izohlarni boshqarish
+                  Barcha yangiliklar
                 </h3>
               </Link>
             </li>
+
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
                 to="/product"
@@ -386,6 +365,30 @@ const AddNews = () => {
                 <h3 className="text-center text-lg xs:text-xl">
                   Mahsulotlarni boshqarish
                 </h3>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/requests"
+                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+              >
+                <img
+                  width={192}
+                  height={192}
+                  src={requestsImg}
+                  alt="requests page"
+                  className="size-28 sm:size-32 md:size-[147px]"
+                />
+                {/* arrow */}
+                <img
+                  width={36}
+                  height={36}
+                  src={topRightArrowImg}
+                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
+                  alt="top right arrow"
+                />
+                <h3 className="text-center text-lg xs:text-xl">Murojaatlar</h3>
               </Link>
             </li>
           </ul>
