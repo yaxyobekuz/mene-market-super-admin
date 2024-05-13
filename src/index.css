@@ -6,7 +6,7 @@
 
 @layer utilities {
   .container {
-    @apply max-w-7xl w-full px-5 mx-auto;
+    @apply max-w-7xl w-full px-3 mx-auto xs:px-4 sm:px-5;
   }
 }
 
