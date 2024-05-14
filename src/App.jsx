@@ -26,6 +26,7 @@ import Users from "./pages/Users";
 import AddNews from "./pages/AddNews";
 import Reviews from "./pages/Reviews";
 import Newness from "./pages/Newness";
+import Appeals from "./pages/Appeals";
 import Products from "./pages/Products";
 import Payments from "./pages/Payments";
 import ProductAdd from "./pages/ProductAdd";
@@ -81,6 +82,9 @@ const App = () => {
 
         {/* payments */}
         <Route path="payments" element={<Payments />} />
+
+        {/* appeals */}
+        <Route path="appeals" element={<Appeals />} />
       </Route>
     )
   );
