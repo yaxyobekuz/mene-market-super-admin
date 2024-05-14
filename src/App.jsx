@@ -25,6 +25,7 @@ import Login from "./pages/Login";
 import Users from "./pages/Users";
 import AddNews from "./pages/AddNews";
 import Reviews from "./pages/Reviews";
+import Newness from "./pages/Newness";
 import Products from "./pages/Products";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
@@ -72,8 +73,9 @@ const App = () => {
   
         {/* news */}
         <Route path="news" element={<Outlet />}>
-          <Route index path=":newsPageIndex?" element={<News />} />
           <Route path="add" element={<AddNews />} />
+          <Route index path=":newsPageIndex?" element={<News />} />
+          <Route index path=":newness/:newnessId" element={<Newness />} />
         </Route>
       </Route>
     )
