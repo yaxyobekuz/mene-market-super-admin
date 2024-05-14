@@ -27,6 +27,7 @@ import AddNews from "./pages/AddNews";
 import Reviews from "./pages/Reviews";
 import Newness from "./pages/Newness";
 import Products from "./pages/Products";
+import Payments from "./pages/Payments";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import ProductRequests from "./pages/ProductRequests";
@@ -70,13 +71,16 @@ const App = () => {
           path="product-requests/:productRequestsPageIndex?"
           element={<ProductRequests />}
         />
-  
+
         {/* news */}
         <Route path="news" element={<Outlet />}>
           <Route path="add" element={<AddNews />} />
           <Route index path=":newsPageIndex?" element={<News />} />
           <Route index path=":newness/:newnessId" element={<Newness />} />
         </Route>
+
+        {/* payments */}
+        <Route path="payments" element={<Payments />} />
       </Route>
     )
   );
