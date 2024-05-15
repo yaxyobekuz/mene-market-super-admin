@@ -16,7 +16,6 @@ import ToastifyContainer from "./components/ToastifyContainer";
 
 // layouts
 import MainRoot from "./layouts/MainRoot";
-import ProductLayout from "./layouts/ProductLayout";
 
 // pages
 import Home from "./pages/Home";
@@ -28,6 +27,8 @@ import AddNews from "./pages/AddNews";
 import Reviews from "./pages/Reviews";
 import Newness from "./pages/Newness";
 import Appeals from "./pages/Appeals";
+import Contest from "./pages/Contest";
+import Contests from "./pages/Contests";
 import Products from "./pages/Products";
 import Payments from "./pages/Payments";
 import ProductAdd from "./pages/ProductAdd";
@@ -35,7 +36,6 @@ import EditProduct from "./pages/EditProduct";
 import DonationBox from "./pages/DonationBox";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
-import Contests from "./pages/Contests";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -54,13 +54,10 @@ const App = () => {
         <Route index element={<Home />} />
 
         {/* product */}
-        <Route path="product" element={<ProductLayout />}>
+        <Route path="product" element={<Outlet />}>
           <Route index element={<Products />} />
-
           <Route path="add" element={<ProductAdd />} />
-
           <Route path="edit/:productId" element={<EditProduct />} />
-
           <Route path="find-by-id/:productId?" element={<FindProductById />} />
         </Route>
 
@@ -98,7 +95,8 @@ const App = () => {
         {/* contests */}
         <Route path="contests" element={<Outlet />}>
           <Route index element={<Contests />} />
-          <Route path=":contestId?" element={<Contests />} />
+          <Route path=":contestPageIndex?" element={<Contests />} />
+          <Route path="contest/:contestId?" element={<Contest />} />
         </Route>
       </Route>
     )
