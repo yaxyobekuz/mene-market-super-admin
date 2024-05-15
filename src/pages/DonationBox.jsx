@@ -23,7 +23,7 @@ const DonationBox = () => {
         <div className="flex items-center justify-between flex-col gap-5 sm:flex-row">
           {/* waves */}
           <div className="waves flex items-center justify-center size-52 rounded-full border-2 border-brand-dark-800">
-            <div className="flex flex-col items-center gap-1.5 text-white">
+            <div className="flex flex-col items-center gap-1.5">
               <span className="text-xl font-bold">Jami</span>
               <b className="text-2xl">137.010.000</b>
               <span className="text-xl font-bold">so'm</span>
