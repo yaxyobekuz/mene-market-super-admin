@@ -21,6 +21,7 @@ import ProductLayout from "./layouts/ProductLayout";
 // pages
 import Home from "./pages/Home";
 import News from "./pages/News";
+import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
 import AddNews from "./pages/AddNews";
@@ -31,9 +32,9 @@ import Products from "./pages/Products";
 import Payments from "./pages/Payments";
 import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
+import DonationBox from "./pages/DonationBox";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
-import Chat from "./pages/Chat";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -89,6 +90,8 @@ const App = () => {
           <Route index element={<Appeals />} />
           <Route path="chat/:chatId?" element={<Chat />} />
         </Route>
+
+        <Route path="donation-box" element={<DonationBox />} />
       </Route>
     )
   );
