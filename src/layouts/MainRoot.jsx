@@ -10,9 +10,11 @@ const MainRoot = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+
+  const pathArr = location.pathname.split("/").filter((i) => i !== "");
   return (
-    <div className="flex flex-col min-h-screen font-fira_sans">
-      <Header />
+    <div className="flex flex-col min-h-screen">
+      {pathArr[1] !== "chat" && <Header />}
       <main className="grow">
         <Outlet />
       </main>

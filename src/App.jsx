@@ -33,6 +33,7 @@ import ProductAdd from "./pages/ProductAdd";
 import EditProduct from "./pages/EditProduct";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
+import Chat from "./pages/Chat";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -84,7 +85,10 @@ const App = () => {
         <Route path="payments" element={<Payments />} />
 
         {/* appeals */}
-        <Route path="appeals" element={<Appeals />} />
+        <Route path="appeals" element={<Outlet />}>
+          <Route index element={<Appeals />} />
+          <Route path="chat/:chatId?" element={<Chat />} />
+        </Route>
       </Route>
     )
   );
