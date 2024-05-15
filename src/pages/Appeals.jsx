@@ -4,8 +4,8 @@ import { Skeleton } from "antd";
 
 // images
 import userImg from "../assets/images/user.jpg";
-import arrowRightImg from "../assets/images/arrow-right.svg";
 import deleteImg from "../assets/images/delete.svg";
+import arrowRightImg from "../assets/images/arrow-right.svg";
 const Appeals = () => {
   const items = [0, 1, 2, 3, 4, 5, 6, 7, 8];
   return (

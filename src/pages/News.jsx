@@ -114,7 +114,7 @@ const News = () => {
                   return (
                     <li key={item} className="w-full">
                       <Link
-                        to={`/news/newest/${item}`}
+                        to={`/news/newness/${item}`}
                         className="flex flex-col gap-4 w-full sm:bg-brand-dark-800/5 rounded-2xl group sm:flex-row md:gap-5 md:p-5"
                       >
                         <img
@@ -135,7 +135,7 @@ const News = () => {
                               Nobis delectus numquam beatae architecto!
                             </h3>
 
-                            <p className="text-sm line-clamp-2">
+                            <p className="text-sm line-clamp-2 md:text-base ">
                               Konkursda yutuqli o'rinlar 5 ta va umumiy mablag'
                               15,000,000 so'm. Konkurs g'oliblari kamida 500 ta
                               maxsulot sotganlar ichidan olinadi. Konkursda
@@ -259,7 +259,7 @@ const News = () => {
                   height={192}
                   src={newsAddImg}
                   alt="go to find product by id page"
-                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:w-48 md:h-[147px]"
+                  className="size-28 sm:size-32 md:size-[147px] "
                 />
                 {/* arrow */}
                 <img
