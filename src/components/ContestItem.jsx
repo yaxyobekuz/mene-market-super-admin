@@ -1,11 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // images
 import dateImg from "../assets/images/date.svg";
 import awardImg from "../assets/images/award.svg";
 import arrowRightImg from "../assets/images/arrow-right-solid.svg";
 const ContestItem = () => {
+  const location = useLocation();
+  const pathArr = location.pathname.split("/").filter((i) => i !== "");
+  const isContestPage = pathArr[1] === "contest";
   return (
     <li className="flex flex-col gap-4 w-full md:bg-brand-dark-800/5 rounded-2xl group md:flex-row md:gap-5 lg:p-5">
       <img
@@ -17,7 +20,7 @@ const ContestItem = () => {
       />
 
       {/* main content */}
-      <div className="flex flex-col gap-3 min-h-full md:py-5 sm:pr-5 sm:gap-5 md:pr-5 lg:py-2">
+      <div className="flex flex-col gap-3 min-h-full sm:gap-5 md:py-5 md:pr-5 lg:pr-0 lg:py-2">
         {/* content header (date, prize, arrow right) */}
         <div className="flex items-center justify-between gap-5">
           {/* date prize */}
@@ -50,19 +53,21 @@ const ContestItem = () => {
           </div>
 
           {/* arrow right */}
-          <Link
-            aria-label="contest"
-            to="/contests/contest/1"
-            className="hidden sm:inline-block"
-          >
-            <img
-              width={24}
-              height={24}
-              src={arrowRightImg}
-              alt="arrow right icon"
-              className="size-6 opacity-0 -translate-x-3 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
-            />
-          </Link>
+          {!isContestPage && (
+            <Link
+              aria-label="contest"
+              to="/contests/contest/1"
+              className="hidden sm:inline-block"
+            >
+              <img
+                width={24}
+                height={24}
+                src={arrowRightImg}
+                alt="arrow right icon"
+                className="size-6 opacity-0 -translate-x-3 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+              />
+            </Link>
+          )}
         </div>
 
         {/* mid content (title, description & product image) */}
@@ -93,12 +98,16 @@ const ContestItem = () => {
 
         {/* content footer  */}
         <div className="flex gap-3.5 sm:gap-5">
-          <Link
-            to="/contests/contest/1"
-            className="w-full text-center py-2.5 px-5 border-2 border-brand-dark-800 rounded-xl xs:w-auto"
-          >
-            Ba'tafsil
-          </Link>
+          {!isContestPage && (
+            <Link
+              to="/contests/contest/1"
+              className="w-full text-center py-2.5 px-5 border-2 border-brand-dark-800 rounded-xl xs:w-auto"
+            >
+              Ba'tafsil
+            </Link>
+          )}
+
+          {/* delete btn */}
           <button className="main-btn">O'chirish</button>
         </div>
       </div>
