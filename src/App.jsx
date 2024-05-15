@@ -35,6 +35,7 @@ import EditProduct from "./pages/EditProduct";
 import DonationBox from "./pages/DonationBox";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
+import Contests from "./pages/Contests";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -91,7 +92,14 @@ const App = () => {
           <Route path="chat/:chatId?" element={<Chat />} />
         </Route>
 
+        {/* donation box */}
         <Route path="donation-box" element={<DonationBox />} />
+
+        {/* contests */}
+        <Route path="contests" element={<Outlet />}>
+          <Route index element={<Contests />} />
+          <Route path=":contestId?" element={<Contests />} />
+        </Route>
       </Route>
     )
   );
