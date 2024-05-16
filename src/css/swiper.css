@@ -61,6 +61,18 @@
   height: 16px;
 }
 
+/* bg animation */
+.swiper-slide-bg-animation {
+  background: linear-gradient(-45deg, #29252405 50%, #fef6eb, #29252405 60%);
+  background-position: 130%;
+  background-size: 200%;
+  animation: 1s ease infinite;
+  transition: all 0.8s ease;
+}
+.swiper-slide-bg-animation:hover {
+  background-position: -70%;
+}
+
 @media only screen and (max-width: 640px) {
   .swiper-button-next,
   .swiper-button-prev {
