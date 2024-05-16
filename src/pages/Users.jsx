@@ -597,14 +597,14 @@ const Users = () => {
             </li>
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
-                to="/transactions"
+                to="/payments"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
                   width={192}
                   height={192}
                   src={transactionsImg}
-                  alt="transactions image"
+                  alt="payments image"
                   className="size-28 sm:size-32 md:size-[147px]"
                 />
 

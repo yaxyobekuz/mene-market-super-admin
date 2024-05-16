@@ -81,6 +81,7 @@ const Reviews = () => {
         })
         .finally(() => setLoader(false));
     } else {
+      setLoader(false);
       toast.error("Internet aloqasi mavjud emas!");
     }
   };
@@ -211,7 +212,7 @@ const Reviews = () => {
       {/* main section (reviews) */}
       <div className="pb-12">
         <div className="container">
-          <h1 className="mb-7">Izohlar</h1>
+          <h1 className="mb-7">So'rovlar</h1>
 
           {/* main content */}
           {reviews &&
