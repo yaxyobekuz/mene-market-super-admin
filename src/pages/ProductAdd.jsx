@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 
 // axios
 import axios from "../axios/axios";
@@ -9,14 +8,22 @@ import { useSelector, useDispatch } from "react-redux";
 import { addProductToProductsData } from "../store/productsDataSlice";
 
 // antd
-import { Select } from "antd";
 import "../css/antd.css";
+import { Select } from "antd";
+
+// helpers
+import {
+  getElement,
+  removeDotsFromNumber,
+  checkTheInputsValueLength,
+} from "../helpers/helpers";
 
 // toast (notification)
 import { toast } from "react-toastify";
 
-// loader (component)
+// components
 import Loader from "../components/Loader";
+import RecommendationSection from "../components/RecommendationSection";
 
 // images
 import image from "../assets/images/image.png";
@@ -26,20 +33,19 @@ import reviewsImg from "../assets/images/reviews.svg";
 import productsImg from "../assets/images/products.svg";
 import arrowDownImg from "../assets/images/down-arrow.svg";
 import findProductImg from "../assets/images/find-product.svg";
-import topRightArrowImg from "../assets/images/top-right-arrow.svg";
 
 const ProductAdd = () => {
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
+  const isOnline = navigator.onLine;
   const [loader, setLoader] = useState(false);
   const newProductTypeDropdownRef = useRef(null);
   const addNewProductTypeInputsWrapperRef = useRef(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [productType, setPproductType] = useState("other");
+  const [productType, setProductType] = useState("other");
   const [newProductTypes, setNewProductTypes] = useState([]);
   const { authData } = useSelector((store) => store.authData);
   const [openSelectedImages, setOpenSelectedImages] = useState(false);
-  const [disableFormElements, setDisableFormElements] = useState(false);
   const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
 
   // select images
@@ -85,12 +91,7 @@ const ProductAdd = () => {
     setSelectedImages(filteredImages);
   };
 
-  // set product type
-  const handleChange = (value) => {
-    setPproductType(value);
-  };
-
-  // format the input value
+  // format the number input value
   const formatTheValue = (e) => {
     const value = e.target.value;
 
@@ -105,7 +106,7 @@ const ProductAdd = () => {
 
   // add new product type
   const handleNewProductTypeAdd = () => {
-    // form elements
+    // inputs
     const elNewProductTypeInput =
       addNewProductTypeInputsWrapperRef.current.querySelector(
         ".js-new-product-type-input"
@@ -114,79 +115,29 @@ const ProductAdd = () => {
       addNewProductTypeInputsWrapperRef.current.querySelector(
         ".js-new-product-type-count-input"
       );
-
-    // form elements arr
-    const formElements = [elNewProductTypeCountInput, elNewProductTypeInput];
-
-    // checked form elements value arr
-    const checkValidFormElementValue = formElements.map((element) => {
-      if (element.value.length > 0) {
-        element.classList.remove("!border-red-500");
-        return true;
-      } else {
-        element.classList.add("!border-red-500");
-        element.focus();
-        return false;
-      }
-    });
-
-    // checked form elements value
-    const isValidFormElements = checkValidFormElementValue.every(
-      (element) => element
-    );
-
-    const priceToNumber = (value) => {
-      return Number(value.split(".").join(""));
-    };
+    const inputs = [elNewProductTypeCountInput, elNewProductTypeInput];
 
     // add new product type
-    if (isValidFormElements) {
-      if (newProductTypes.length > 0) {
-        const filteredProductTypes = newProductTypes.find((type) => {
-          return type.name === elNewProductTypeInput.value.trim();
-        });
+    if (checkTheInputsValueLength(inputs)) {
+      setNewProductTypes([
+        ...newProductTypes,
+        {
+          name: elNewProductTypeInput.value.trim(),
+          count: removeDotsFromNumber(elNewProductTypeCountInput.value),
+        },
+      ]);
 
-        // add new product type
-        if (!filteredProductTypes) {
-          setNewProductTypes([
-            ...newProductTypes,
-            {
-              id: newProductTypes.length,
-              name: elNewProductTypeInput.value.trim(),
-              count: priceToNumber(elNewProductTypeCountInput.value),
-            },
-          ]);
-
-          // reset the form elements value to default values
-          elNewProductTypeInput.value = "";
-          elNewProductTypeCountInput.value = "1";
-        } else {
-          toast.info("Ushbu mahsulot turi qo'shib bo'lingan!");
-          elNewProductTypeInput.classList.add("!border-red-500");
-          elNewProductTypeInput.focus();
-        }
-      } else {
-        setNewProductTypes([
-          {
-            id: 0,
-            name: elNewProductTypeInput.value.trim(),
-            count: priceToNumber(elNewProductTypeCountInput.value),
-          },
-        ]);
-
-        // reset the form elements value to default values
-        elNewProductTypeInput.value = "";
-        elNewProductTypeCountInput.value = "1";
-      }
+      elNewProductTypeInput.value = "";
+      elNewProductTypeCountInput.value = "1";
     } else {
-      toast.info("Ma'lumotlar to'ldirilmagan!");
+      toast.error("Ma'lumotlar to'ldirilmagan!");
     }
   };
 
   // delete new product type
-  const handleNewProductTypeDelete = (event) => {
-    const filteredNewProductTypes = newProductTypes.filter((type) => {
-      return type.name !== event.name;
+  const handleNewProductTypeDelete = (index) => {
+    const filteredNewProductTypes = newProductTypes.filter((_, typeIndex) => {
+      return typeIndex !== index;
     });
 
     setNewProductTypes(filteredNewProductTypes);
@@ -214,7 +165,7 @@ const ProductAdd = () => {
   }, [dropdownRef, newProductTypeDropdownRef]);
 
   // add product
-  const handleSubmit = async (event) => {
+  const addProduct = async (event) => {
     event.preventDefault();
 
     // images to base 64
@@ -235,143 +186,113 @@ const ProductAdd = () => {
     );
 
     // form elements
-    const elProductNameInput = event.target.querySelector(
-      ".js-product-name-input"
+    const elProductNameInput = getElement(event, ".js-product-name-input");
+    const elProductPriceInput = getElement(event, ".js-product-price-input");
+    const elProductTCountInput = getElement(event, ".js-product-count-input");
+    const elProductTypeNameInput = getElement(
+      event,
+      ".js-product-type-name-input"
     );
-    const elProductDescriptionTextarea = event.target.querySelector(
-      ".js-product-description-textarea"
-    );
-    const elProductPriceInput = event.target.querySelector(
-      ".js-product-price-input"
-    );
-    const elProductAkciyaPriceInput = event.target.querySelector(
-      ".js-product-akciya-price-input"
-    );
-    const elProductAdsPriceInput = event.target.querySelector(
+    const elProductAdsPriceInput = getElement(
+      event,
       ".js-product-ads-price-input"
     );
-    const elProductCountInput = event.target.querySelector(
-      ".js-product-count-input"
+    const elProductDescriptionTextarea = getElement(
+      event,
+      ".js-product-description-textarea"
     );
-    const elProductOwnerInput = event.target.querySelector(
-      ".js-product-owner-input"
+    const elProductAkciyaPriceInput = getElement(
+      event,
+      ".js-product-akciya-price-input"
     );
 
     // form elements arr
-    const formElements = [
-      elProductDescriptionTextarea,
-      elProductCountInput,
-      elProductAdsPriceInput,
-      elProductPriceInput,
-      elProductOwnerInput,
+    const inputs = [
       elProductNameInput,
+      elProductTypeNameInput,
+      elProductPriceInput,
+      elProductAdsPriceInput,
+      elProductTCountInput,
+      elProductDescriptionTextarea,
     ];
 
-    // checked form elements value arr
-    const checkValidFormElementValue = formElements.map((element) => {
-      if (element.value.length > 0) {
-        element.classList.remove("!border-red-500");
-        return true;
-      } else {
-        element.classList.add("!border-red-500");
-        element.focus();
-        return false;
-      }
-    });
-
-    // checked form elements value
-    const isValidFormElements = checkValidFormElementValue.every(
-      (element) => element
-    );
-
     // add product
-    if (!loader && isValidFormElements) {
+    if (!loader && checkTheInputsValueLength(inputs)) {
       if (imageData.length > 0) {
-        // set loader
         setLoader(true);
 
         // form data
-        const formData = () => {
-          const priceToNumber = (value) => {
-            return Number(value.split(".").join(""));
-          };
-
-          return {
-            product: {
-              brand: elProductNameInput.value,
-              description: elProductDescriptionTextarea.value,
-
-              // price
-              price: priceToNumber(elProductPriceInput.value),
-              scidPrice: priceToNumber(elProductAkciyaPriceInput.value),
-              advertisingPrice: priceToNumber(elProductAdsPriceInput.value),
-
-              // other
-              productOwner: elProductOwnerInput.value,
-              productType: productType,
-              isArchived: false,
-              isLiked: false,
-              images: [],
-              numberSold: 0,
-              numberStars: 0,
-              comments: [],
-              productAttributes: [],
-              // :elProductCountInput.value,
-            },
-            imageFilePaths: [],
-            bytes: imageData,
-          };
+        const formData = {
+          product: {
+            comments: [],
+            numberSold: 0,
+            productTypes: [
+              {
+                count: removeDotsFromNumber(elProductTCountInput.value),
+                name: elProductTypeNameInput.value,
+                productId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              },
+              ...newProductTypes,
+            ],
+            isArchived: false,
+            imageMetadatas: [],
+            productType: productType,
+            name: elProductNameInput.value,
+            description: elProductDescriptionTextarea.value,
+            price: removeDotsFromNumber(elProductPriceInput.value),
+            scidPrice: removeDotsFromNumber(elProductAkciyaPriceInput.value),
+            advertisingPrice: removeDotsFromNumber(
+              elProductAdsPriceInput.value
+            ),
+          },
+          bytes: imageData,
         };
-
-        // disable form elements
-        setDisableFormElements(true);
 
         // add product
         axios
-          .post("/Product", formData(), {
+          .post("/Product", formData, {
             headers: {
               Authorization: "Bearer " + authData.data.token,
-              "Content-Type": "application/json; charset=utf-8",
             },
           })
           .then((res) => {
-            dispatch(addProductToProductsData(res.data));
+            if (res.status === 200) {
+              dispatch(addProductToProductsData(res.data));
 
-            // notification
-            toast.success("Mahsulot muvafaqiyatli qo'shildi!");
+              // reset form elements value
+              setSelectedImages([]);
+              setNewProductTypes([]);
+              elProductNameInput.value = "";
+              elProductPriceInput.value = "";
+              elProductAdsPriceInput.value = "";
+              elProductAkciyaPriceInput.value = "";
+              elProductDescriptionTextarea.value = "";
+              elProductTypeNameInput.value = "Hech narsa";
 
-            // reset form elements value
-            elProductNameInput.value = "";
-            elProductPriceInput.value = "";
-            elProductCountInput.value = "1";
-            elProductAdsPriceInput.value = "";
-            elProductOwnerInput.value = "Mene Market";
-            elProductDescriptionTextarea.value = "";
-            elProductAkciyaPriceInput.value = "";
-            setSelectedImages([]);
-          })
-          .catch(() => {
-            const isOnline = navigator.onLine;
-
-            // error notification
-            if (isOnline) {
-              toast.error("Nimadir xato ketdi!");
+              // notification
+              toast.success("Mahsulot muvafaqiyatli qo'shildi!");
             } else {
-              toast.error("Internet aloqasi mavjud emas!");
+              toast.error("Nimadir xato ketdi!");
             }
           })
-          .finally(() => setLoader(false), setDisableFormElements(false));
+          .catch(() => {
+            // notification
+            toast.error(
+              !isOnline
+                ? "Internet aloqasi mavjud emas!"
+                : "Nimadir xato ketdi!"
+            );
+          })
+          .finally(() => setLoader(false));
       } else {
-        toast.error("Iltimos bironbir rasm yuklang!");
+        toast.error("Hech qanday rasm tanlanmadi!");
       }
-    } else {
-      toast.error("Xatolik!");
     }
   };
 
   return (
     <>
-      {/* page main content */}
+      {/* page main section */}
       <div className="pb-12">
         <div className="container">
           <h1 className="mb-7">Yangi mahsulot qo'shish</h1>
@@ -403,7 +324,7 @@ const ProductAdd = () => {
                 <div
                   role="button"
                   className={`${
-                    disableFormElements ? "cursor-default" : "cursor-pointer"
+                    loader ? "cursor-default" : "cursor-pointer"
                   } main-btn w-full text-center px-14 rounded-lg xs:w-auto xs:rounded-xl`}
                 >
                   Rasm yuklash
@@ -412,10 +333,10 @@ const ProductAdd = () => {
                 {/* input  */}
                 <input
                   type="file"
-                  disabled={disableFormElements}
+                  disabled={loader}
                   multiple
                   name="image"
-                  accept="image/*"
+                  accept="image/jpeg, image/png"
                   onChange={handleImageChange}
                   className="hidden"
                 />
@@ -425,12 +346,12 @@ const ProductAdd = () => {
               <div ref={dropdownRef} className="relative w-full">
                 <button
                   onClick={() => {
-                    if (!disableFormElements) {
+                    if (!loader) {
                       setOpenSelectedImages(!openSelectedImages);
                     }
                   }}
                   className={`${
-                    disableFormElements ? "cursor-default" : "cursor-pointer"
+                    loader ? "cursor-default" : "cursor-pointer"
                   } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
                 >
                   <span>
@@ -532,7 +453,7 @@ const ProductAdd = () => {
                           type="file"
                           multiple
                           name="image"
-                          accept="image/*"
+                          accept="image/jpeg, image/png"
                           onChange={handleImageAdd}
                           className="hidden"
                         />
@@ -544,12 +465,12 @@ const ProductAdd = () => {
             </div>
 
             {/* add product */}
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={addProduct} className="space-y-3">
               {/* product name */}
               <label className="flex flex-col items-start gap-2">
                 <span>Mahsulot nomi</span>
                 <input
-                  disabled={disableFormElements}
+                  disabled={loader}
                   placeholder="Mahsulot nomi"
                   name="product name"
                   type="text"
@@ -557,7 +478,7 @@ const ProductAdd = () => {
                 />
               </label>
 
-              {/* add new product type */}
+              {/* new product type */}
               <div className="flex flex-col items-start gap-2">
                 <div>Yangi mahsulot turini qo'shish</div>
 
@@ -571,12 +492,12 @@ const ProductAdd = () => {
                     id="add-new-product-type-button"
                     type="button"
                     onClick={() => {
-                      if (!disableFormElements) {
+                      if (!loader) {
                         setOpenNewProductTypes(!openNewProductTypes);
                       }
                     }}
                     className={`${
-                      disableFormElements ? "cursor-default" : "cursor-pointer"
+                      loader ? "cursor-default" : "cursor-pointer"
                     } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
                   >
                     <span>
@@ -601,45 +522,47 @@ const ProductAdd = () => {
                         <div>
                           {newProductTypes.length > 0 ? (
                             <ol>
-                              {newProductTypes.map((type, index) => {
-                                return (
-                                  <li
-                                    key={index}
-                                    className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                              {newProductTypes.map((type, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                                >
+                                  {/* count */}
+                                  <span
+                                    className={`${
+                                      newProductTypes.length < 10
+                                        ? "w-3"
+                                        : newProductTypes.length < 100
+                                        ? "w-5"
+                                        : "w-8"
+                                    } inline-block shrink-0 font-semibold `}
                                   >
-                                    <span
-                                      className={`${
-                                        newProductTypes.length < 10
-                                          ? "w-3"
-                                          : newProductTypes.length < 100
-                                          ? "w-5"
-                                          : "w-8"
-                                      } inline-block shrink-0 font-semibold `}
-                                    >
-                                      {index + 1}.
-                                    </span>
-                                    <h3 className="line-clamp-1 font-semibold w-full">
-                                      {type.name}
-                                    </h3>
+                                    {index + 1}.
+                                  </span>
 
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleNewProductTypeDelete(type)
-                                      }
-                                      className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
-                                    >
-                                      <img
-                                        width={24}
-                                        height={24}
-                                        src={deleteImg}
-                                        alt="delete icon "
-                                        className="size-6"
-                                      />
-                                    </button>
-                                  </li>
-                                );
-                              })}
+                                  {/* type name */}
+                                  <h3 className="line-clamp-1 font-semibold w-full">
+                                    {type.name}
+                                  </h3>
+
+                                  {/* delete btn */}
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleNewProductTypeDelete(index)
+                                    }
+                                    className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
+                                  >
+                                    <img
+                                      width={24}
+                                      height={24}
+                                      src={deleteImg}
+                                      alt="delete icon "
+                                      className="size-6"
+                                    />
+                                  </button>
+                                </li>
+                              ))}
                             </ol>
                           ) : (
                             <div className="px-4 opacity-70">
@@ -727,14 +650,26 @@ const ProductAdd = () => {
                 </div>
               </div>
 
-              {/* product type & product owner */}
+              {/* product type name & product type */}
               <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                <label className="flex flex-col items-start gap-2 w-full">
+                  <span>Mahsulot turining nomi</span>
+                  <input
+                    disabled={loader}
+                    placeholder="Mahsulot turining nomi"
+                    defaultValue="Hech narsa"
+                    name="product type name"
+                    type="text"
+                    className="js-product-type-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                  />
+                </label>
+
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot turi</span>
                   <Select
                     defaultValue="Boshqa"
-                    disabled={disableFormElements}
-                    onChange={handleChange}
+                    disabled={loader}
+                    onChange={(value) => setProductType(value)}
                     options={[
                       { value: "other", label: "Boshqa" },
                       { value: "car", label: "Mashina" },
@@ -748,18 +683,6 @@ const ProductAdd = () => {
                     ]}
                   />
                 </label>
-
-                <label className="flex flex-col items-start gap-2 w-full">
-                  <span>Mahsulot egasi</span>
-                  <input
-                    disabled={disableFormElements}
-                    defaultValue="Mene Market"
-                    placeholder="Mahsulot egasi"
-                    name="product owner"
-                    type="text"
-                    className="js-product-owner-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                  />
-                </label>
               </div>
 
               {/* product price */}
@@ -767,7 +690,7 @@ const ProductAdd = () => {
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot narxi</span>
                   <input
-                    disabled={disableFormElements}
+                    disabled={loader}
                     onChange={formatTheValue}
                     min={0}
                     step={20000}
@@ -781,7 +704,7 @@ const ProductAdd = () => {
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot aksiya narxi</span>
                   <input
-                    disabled={disableFormElements}
+                    disabled={loader}
                     onChange={formatTheValue}
                     placeholder="Mahsulot aksiya narxi"
                     name="product sale price"
@@ -796,7 +719,7 @@ const ProductAdd = () => {
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot reklama narxi</span>
                   <input
-                    disabled={disableFormElements}
+                    disabled={loader}
                     onChange={formatTheValue}
                     placeholder="Mahsulot reklama narxi"
                     name="product ads price"
@@ -808,7 +731,7 @@ const ProductAdd = () => {
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot soni</span>
                   <input
-                    disabled={disableFormElements}
+                    disabled={loader}
                     defaultValue={1}
                     onChange={formatTheValue}
                     placeholder="Mahsulot soni"
@@ -823,10 +746,10 @@ const ProductAdd = () => {
               <label className="flex flex-col items-start gap-2">
                 <span>Mahsulot tavsifi</span>
                 <textarea
-                  disabled={disableFormElements}
+                  disabled={loader}
                   placeholder="Mahsulot tavsifi"
                   name="description"
-                  className="js-product-description-textarea w-full min-h-32 bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800 resize-none hidden-scroll"
+                  className="js-product-description-textarea w-full min-h-44 max-h-72 resize-y hidden-scroll bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
                 ></textarea>
               </label>
 
@@ -842,88 +765,34 @@ const ProductAdd = () => {
       </div>
 
       {/* recommendation section */}
-      <section className="py-12">
-        <div className="container">
-          <h2 className="mb-7">Ushbu sahifaga oid</h2>
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <li>
-              <Link
-                to="/product/find-by-id"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={findProductImg}
-                  alt="go to find product by id page"
-                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:w-48 md:h-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotni qidirish
-                </h3>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={reviewsImg}
-                  alt="go to reviews page"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Izohlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-            <li className="col-span-1 sm:col-span-2 lg:col-span-1">
-              <Link
-                to="/product"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={productsImg}
-                  alt="go to products page image"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <RecommendationSection
+        items={[
+          {
+            title: "Mahsulotni qidirish",
+            path: "product/find-by-id",
+            image: {
+              src: findProductImg,
+              alt: "find product by id image",
+            },
+          },
+          {
+            title: "Izohlarni boshqarish",
+            path: "reviews",
+            image: {
+              src: reviewsImg,
+              alt: "reviews image",
+            },
+          },
+          {
+            title: "Mahsulotlar",
+            path: "products",
+            image: {
+              src: productsImg,
+              alt: "products image",
+            },
+          },
+        ]}
+      />
     </>
   );
 };
