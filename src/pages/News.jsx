@@ -301,7 +301,7 @@ const News = () => {
             </li>
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
-                to="/product"
+                to="/products"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img

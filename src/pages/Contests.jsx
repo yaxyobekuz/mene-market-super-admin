@@ -37,7 +37,7 @@ const Contests = () => {
 
             {/* link */}
             <Link
-              to="/product"
+              to="/products"
               className="main-btn hidden items-center justify-center bg-brand-dark-800/5 text-brand-dark-800 group xs:flex"
             >
               <span className="transition-opacity duration-300 group-hover:opacity-0">

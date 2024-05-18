@@ -769,7 +769,7 @@ const ProductAdd = () => {
         items={[
           {
             title: "Mahsulotni qidirish",
-            path: "product/find-by-id",
+            path: "products/product/find-by-id",
             image: {
               src: findProductImg,
               alt: "find product by id image",

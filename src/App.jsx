@@ -3,9 +3,7 @@ import React from "react";
 import {
   Outlet,
   Route,
-  Router,
   RouterProvider,
-  Routes,
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
@@ -39,6 +37,7 @@ import EditProduct from "./pages/EditProduct";
 import DonationBox from "./pages/DonationBox";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
+import Profile from "./pages/Profile";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
@@ -58,15 +57,18 @@ const App = () => {
           <Route index element={<Home />} />
 
           {/* product */}
-          <Route path="product" element={<Outlet />}>
-            <Route index element={<Products />} />
-            <Route path="add" element={<ProductAdd />} />
-            <Route path="edit/:productId" element={<EditProduct />} />
+          <Route path="products" element={<Outlet />}>
+            <Route index path=":productType?" element={<Products />} />
+            <Route path="product/add" element={<ProductAdd />} />
+            <Route path="product/edit/:productId" element={<EditProduct />} />
             <Route
-              path="find-by-id/:productId?"
+              path="product/find-by-id/:productId?"
               element={<FindProductById />}
             />
           </Route>
+
+          {/* profile */}
+          <Route path="profile" element={<Profile />} />
 
           {/* news */}
           <Route path="news" element={<Outlet />}>

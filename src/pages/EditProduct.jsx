@@ -1204,7 +1204,7 @@ const EditProduct = () => {
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <li>
               <Link
-                to="/product/find-by-id"
+                to="/products/product/find-by-id"
                 className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
@@ -1254,7 +1254,7 @@ const EditProduct = () => {
             </li>
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
-                to="/product"
+                to="/products"
                 className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img

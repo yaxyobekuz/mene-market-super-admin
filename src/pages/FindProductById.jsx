@@ -84,7 +84,7 @@ const FindProductById = () => {
       .join("");
 
     if (!loader) {
-      navigate("/product/find-by-id/" + id);
+      navigate("/products/product/find-by-id/" + id);
     }
   };
 
@@ -293,7 +293,7 @@ const FindProductById = () => {
               <div className="flex items-end grow">
                 <div className="flex gap-3 w-full">
                   <Link
-                    to={"/product/edit/" + productData.productId}
+                    to={"/products/product/edit/" + productData.productId}
                     className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
                   >
                     {/* <img src="" alt="" /> */}
@@ -331,7 +331,7 @@ const FindProductById = () => {
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <li>
               <Link
-                to="/product/add"
+                to="/products/product/add"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img
@@ -357,7 +357,7 @@ const FindProductById = () => {
 
             <li className="col-span-1 sm:col-span-2 lg:col-span-1">
               <Link
-                to="/product"
+                to="/products"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img

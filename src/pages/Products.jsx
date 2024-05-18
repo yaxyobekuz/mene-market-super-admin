@@ -48,31 +48,26 @@ const Products = () => {
   // get products data
   const getProductsData = () => {
     setLoader(true);
-
     // fetch products data
-    if (isOnline) {
-      axios
-        .get("/Product", {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        })
-        .then((res) => {
-          dispatch(setProductsData(res.data));
-          setProducts(res.data);
-        })
-        .catch(() => {
-          // error notification
-          if (isOnline) {
-            toast.error("Ma'lumotlarni yuklab bo'lmadi");
-          } else {
-            toast.error("Internet aloqasi mavjud emas!");
-          }
-        })
-        .finally(() => setLoader(false));
-    } else {
-      toast.error("Internet aloqasi mavjud emas!");
-    }
+    axios
+      .get("/Product?userRoleString=2", {
+        headers: {
+          Authorization: "Bearer " + authData.data.token,
+        },
+      })
+      .then((res) => {
+        dispatch(setProductsData(res.data.allProducts));
+        setProducts(res.data.allProducts);
+      })
+      .catch(() => {
+        // error notification
+        if (isOnline) {
+          toast.error("Ma'lumotlarni yuklab bo'lmadi");
+        } else {
+          toast.error("Internet aloqasi mavjud emas!");
+        }
+      })
+      .finally(() => setLoader(false));
   };
   useEffect(() => {
     if (productsData.length === 0) {
@@ -129,6 +124,14 @@ const Products = () => {
     setProducts(productsData);
   }, [productsData]);
 
+  const calculateTotalCount = (arr) => {
+    let totalCount = 0;
+    for (let index = 0; index < arr.length; index++) {
+      totalCount += arr[index].count;
+    }
+    return totalCount;
+  };
+
   return (
     <>
       {/* page main content */}
@@ -140,7 +143,7 @@ const Products = () => {
           {/* product add link */}
           <div className="grid grid-cols-1 gap-5 mb-7 xs:grid-cols-2 xs:gap-6">
             <Link
-              to="/product/add"
+              to="/products/product/add"
               className="flex flex-col items-center gap-3 border-2 border-brand-dark-800 border-dashed rounded-2xl py-5 px-5"
             >
               <img
@@ -155,7 +158,7 @@ const Products = () => {
               </span>
             </Link>
             <Link
-              to="/product/find-by-id"
+              to="/products/product/find-by-id"
               className="flex flex-col items-center gap-3 border-2 border-brand-dark-800 border-dashed rounded-2xl py-5 px-5"
             >
               <img
@@ -178,7 +181,7 @@ const Products = () => {
                 return (
                   <li key={button.id}>
                     <NavLink
-                      to={"/product/" + button.name}
+                      to={"/products" + button.name}
                       className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
                       end
                     >
@@ -280,7 +283,11 @@ const Products = () => {
 
                       {/* content header */}
                       <div className="flex items-center justify-between">
-                        <p>{product.productType}</p>
+                        <p>
+                          {product.productType ? product.productType : "Boshqa"}
+                        </p>
+
+                        {/* copy id button */}
                         <button
                           className="flex items-center gap-0.5 disabled:opacity-70"
                           onClick={(e) => {
@@ -324,17 +331,8 @@ const Products = () => {
                       <div className="flex flex-col grow gap-2">
                         {/* title */}
                         <h3 className="text-lg font-semibold">
-                          Lorem ipsum dolor sit amet consectetur.
+                          {product.name}
                         </h3>
-
-                        {/* product owner */}
-                        <div className="flex items-end gap-1 text-sm">
-                          <p className="whitespace-nowrap">Ega</p>
-                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                          <p className="whitespace-nowrap truncate">
-                            {product.productOwner}
-                          </p>
-                        </div>
 
                         {/* product brand */}
                         <div className="flex items-end gap-1 text-sm">
@@ -350,7 +348,7 @@ const Products = () => {
                           <p className="whitespace-nowrap">Sotuvda mavjud</p>
                           <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
                           <p className="whitespace-nowrap truncate">
-                            {formatNumber(0)} ta
+                            {calculateTotalCount(product.productTypes)} ta
                           </p>
                         </div>
 
@@ -390,7 +388,7 @@ const Products = () => {
                         <div className="flex items-end grow">
                           <div className="flex gap-3 w-full">
                             <Link
-                              to={"/product/edit/" + product.productId}
+                              to={"/products/product/edit/" + product.productId}
                               className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
                             >
                               {/* <img src="" alt="" /> */}
@@ -523,14 +521,14 @@ const Products = () => {
           loader={loader2}
           action={deleteProduct}
           subtitle="Mahsulot nomi:"
-          description={productData.description}
+          description={productData.name}
           closeModal={() => setOpenModal(false)}
           button={{ cancel: "Bekor qilish", confirm: "O'chirish" }}
           title="Haqiqatdan ham ushbu mahsulotni o'chirmoqchimisiz?"
           imageSrc={
-            productData.images.length > 0 &&
+            productData.imageMetadatas.length > 0 &&
             "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-              productData.images[0]
+              productData.imageMetadatas[0]
           }
         />
       )}

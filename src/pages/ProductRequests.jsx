@@ -337,7 +337,7 @@ const Reviews = () => {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <Link
-                                  to={"/product/find-by-id/" + review.productId}
+                                  to={"/products/product/find-by-id/" + review.productId}
                                   className="flex items-center gap-1"
                                 >
                                   <span className="text-base font-bold line-clamp-1 sm:text-lg">
@@ -586,7 +586,7 @@ const Reviews = () => {
             </li>
             <li>
               <Link
-                to="/product"
+                to="/products"
                 className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
               >
                 <img

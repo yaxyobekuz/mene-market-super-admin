@@ -93,7 +93,7 @@ const Contest = () => {
 
             {/* add */}
             <Link
-              to="/product"
+              to="/products"
               className="p-1.5 border-2 border-brand-dark-800/10 rounded-full md:p-3"
             >
               <img

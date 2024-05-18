@@ -48,10 +48,10 @@ const Header = () => {
             </li>
             <li>
               <NavLink
-                to="/product"
+                to="/products"
                 className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
               >
-                Mahsulot
+                Mahsulotlar
               </NavLink>
             </li>
             <li>
