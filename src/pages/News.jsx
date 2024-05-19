@@ -1,35 +1,106 @@
-import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+
+// axios
+import axios from "../axios/axios";
+
+// helpers
+import {
+  errorMessage,
+  formatDate,
+  formatTime,
+  successMessage,
+} from "../helpers/helpers";
+
+// data
+import { imageBaseUrl } from "../data/data";
+
+// components
+import ConfirmModal from "../components/ConfirmModal";
+import RecommendationSection from "../components/RecommendationSection";
 
 // antd
 import "../css/antd.css";
 import { Skeleton } from "antd";
 
+// redux
+import { useDispatch, useSelector } from "react-redux";
+import { deleteNewsData, setNewsData } from "../store/newsDataSlice";
+
 // images
 import timeImg from "../assets/images/time.svg";
 import dateImg from "../assets/images/date.svg";
 import newsImg from "../assets/images/news.svg";
-import newsAddImg from "../assets/images/news-add.svg";
 import plusImg from "../assets/images/plus.svg";
 import reloadImg from "../assets/images/reload.svg";
+import deleteImg from "../assets/images/delete.svg";
 import reviewsImg from "../assets/images/reviews.svg";
+import newsAddImg from "../assets/images/news-add.svg";
 import productsImg from "../assets/images/products.svg";
-import findProductImg from "../assets/images/find-product.svg";
 import arrowRightImg from "../assets/images/arrow-right-solid.svg";
-import topRightArrowImg from "../assets/images/top-right-arrow.svg";
 const News = () => {
+  const currentPageIndex = 0;
+  const dispatch = useDispatch();
   const [news, setNews] = useState([]);
   const [loader, setLoader] = useState(true);
+  const [loader2, setLoader2] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [newnessData, setNewnessData] = useState([]);
+  const { newsData } = useSelector((store) => store.newsData);
+  const { authData } = useSelector((store) => store.authData);
+
+  // get news data from server
+  const getNewsData = () => {
+    setLoader(true);
+
+    axios
+      .get("News")
+      .then((res) => {
+        if (res.status === 200) {
+          // setNews(res.data);
+          dispatch(
+            setNewsData({ dataIndex: currentPageIndex, data: res.data })
+          );
+        } else {
+          errorMessage("Malumotlarni yuklab bo'lmadi!");
+        }
+      })
+      .catch(() => errorMessage.offline("Ma'lumotlarni yuklab bo'lmadi!"))
+      .finally(() => setLoader(false));
+  };
+
+  // get news data
   useEffect(() => {
-    const items = [];
-    for (let index = 0; index < 4; index++) {
-      items.push(index + 1);
+    if (!newsData[currentPageIndex]) {
+      getNewsData();
+    } else {
+      setNews(newsData[currentPageIndex]);
+      setTimeout(() => setLoader(false), 500);
     }
-    setTimeout(() => {
-      setNews(items);
-      setLoader(false);
-    }, 3000);
-  }, []);
+  }, [newsData]);
+
+  // delete news
+  const deleteNews = () => {
+    setLoader2(true);
+
+    axios
+      .delete("News?Id=" + newnessData.id, {
+        headers: { Authorization: "Bearer " + authData.data.token },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setOpenModal(false);
+          dispatch(
+            deleteNewsData({ dataIndex: currentPageIndex, id: res.data.id })
+          );
+          successMessage("Yangilik muvaffaqiyatli o'chirildi!");
+        } else {
+          errorMessage();
+        }
+      })
+      .catch(() => errorMessage.offline("Yangilikni o'chirib bo'lmadi!"))
+      .finally(() => setLoader2(false));
+  };
 
   return (
     <>
@@ -61,7 +132,11 @@ const News = () => {
 
           {/* reload btn & news count wrapper  */}
           <div className="flex justify-between flex-col-reverse gap-4 xs:flex-row">
-            <button className="flex items-center justify-center gap-2 bg-brand-dark-800/5 rounded-xl px-5 py-4">
+            <button
+              onClick={getNewsData}
+              disabled={loader}
+              className="flex items-center justify-center gap-2 bg-brand-dark-800/5 rounded-xl px-5 py-4"
+            >
               <img
                 width={24}
                 height={24}
@@ -109,39 +184,53 @@ const News = () => {
           {/* news list */}
           {news &&
             (!loader ? (
+              // news
               <ul className="space-y-5">
-                {news.map((item) => {
+                {news.map((newness) => {
                   return (
-                    <li key={item} className="w-full">
-                      <Link
-                        to={`/news/newness/${item}`}
-                        className="flex flex-col gap-4 w-full sm:bg-brand-dark-800/5 rounded-2xl group sm:flex-row md:gap-5 md:p-5"
-                      >
-                        <img
-                          width={384}
-                          height={216}
-                          src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bmV3c3xlbnwwfHwwfHx8MA%3D%3D"
-                          alt="news image"
-                          className="w-full sm:w-80 lg:w-96 h-auto aspect-video object-cover rounded-xl md:rounded-lg"
-                        />
+                    <li key={newness.id} className="w-full">
+                      <div className="flex flex-col gap-4 w-full sm:bg-brand-dark-800/5 rounded-2xl sm:flex-row md:gap-5 md:p-5">
+                        {/* image wrapper */}
+                        <div className="relative w-full h-auto sm:w-80 sm:h-[180px] md:aspect-auto md:rounded-lg lg:w-96 lg:h-[216px] shrink-0">
+                          <img
+                            width={384}
+                            height={216}
+                            src={imageBaseUrl + newness.imageFilePath}
+                            alt="newness image"
+                            className="w-full h-auto aspect-video object-cover rounded-xl bg-brand-dark-800/10"
+                          />
+
+                          {/* delete btn */}
+                          <button
+                            onClick={() => {
+                              setNewnessData(newness);
+                              setOpenModal(true);
+                            }}
+                            className="main-btn absolute top-5 left-5 p-2.5"
+                          >
+                            <img
+                              width={20}
+                              height={20}
+                              src={deleteImg}
+                              alt="delete icon"
+                              className="size-5"
+                            />
+                          </button>
+                        </div>
 
                         {/* main content */}
-                        <div className="flex flex-col gap-3 min-h-full sm:py-5 sm:pr-5 sm:gap-3 md:pr-0 md:py-0 lg:py-2">
+                        <Link
+                          to={`/news/newness/${newness.id}`}
+                          className="flex flex-col gap-3 min-h-full w-full rounded-lg group sm:py-5 sm:pr-5 sm:gap-3 md:pr-0 md:py-0 lg:py-2"
+                        >
                           {/* content body (title & desctipion) */}
                           <div className="space-y-2 h-full sm:space-y-1">
                             <h3 className="text-base md:text-xl lg:text-2xl line-clamp-3">
-                              Lorem ipsum dolor sit amet consectetur adipisicing
-                              elit. Quas natus ipsum, libero in illum suscipit.
-                              Nobis delectus numquam beatae architecto!
+                              {newness.name}
                             </h3>
 
                             <p className="text-sm line-clamp-2 md:text-base ">
-                              Konkursda yutuqli o'rinlar 5 ta va umumiy mablag'
-                              15,000,000 so'm. Konkurs g'oliblari kamida 500 ta
-                              maxsulot sotganlar ichidan olinadi. Konkursda
-                              yutuqli o'rinlar 5 ta va umumiy mablag' 15,000,000
-                              so'm. o'rinlar 5 ta va umumiy mablag' 15,000,000
-                              so'm.
+                              {newness.description}
                             </p>
                           </div>
 
@@ -160,7 +249,7 @@ const News = () => {
                                 />
 
                                 <span className="text-sm leading-none xs:text-base xs:tracking-[1px]">
-                                  08.12.2024
+                                  {formatDate(newness.postedTime)}
                                 </span>
                               </div>
 
@@ -175,7 +264,7 @@ const News = () => {
                                 />
 
                                 <span className="text-sm leading-none xs:text-base xs:tracking-[1px]">
-                                  11:59
+                                  {formatTime(newness.postedTime)}
                                 </span>
                               </div>
                             </div>
@@ -186,11 +275,11 @@ const News = () => {
                               height={24}
                               src={arrowRightImg}
                               alt="arrow right icon"
-                              className="size-6 opacity-0 -translate-x-3 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                              className="size-5 opacity-0 -translate-x-3 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:size-6"
                             />
                           </div>
-                        </div>
-                      </Link>
+                        </Link>
+                      </div>
                     </li>
                   );
                 })}
@@ -245,88 +334,48 @@ const News = () => {
       </div>
 
       {/* recommendation section */}
-      <section className="py-12">
-        <div className="container">
-          <h2 className="mb-7">Ushbu sahifaga oid</h2>
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <li>
-              <Link
-                to="/news/add"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={newsAddImg}
-                  alt="go to find product by id page"
-                  className="size-28 sm:size-32 md:size-[147px] "
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Yangilik qo'shish
-                </h3>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={reviewsImg}
-                  alt="go to reviews page"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Izohlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-            <li className="col-span-1 sm:col-span-2 lg:col-span-1">
-              <Link
-                to="/products"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={productsImg}
-                  alt="go to products page image"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <RecommendationSection
+        items={[
+          {
+            title: "Yangilik qo'shish",
+            path: "news/add",
+            image: {
+              src: newsAddImg,
+              alt: "news add image",
+            },
+          },
+          {
+            title: "Izohlarni boshqarish",
+            path: "reviews",
+            image: {
+              src: reviewsImg,
+              alt: "reviews image",
+            },
+          },
+          {
+            title: "Mahsulotlarni boshqarish",
+            path: "products",
+            image: {
+              src: productsImg,
+              alt: "products image",
+            },
+          },
+        ]}
+      />
+
+      {/* confirm modal (delete product) */}
+      {openModal && (
+        <ConfirmModal
+          loader={loader2}
+          action={deleteNews}
+          subtitle="Yangilik nomi:"
+          description={newnessData.name}
+          closeModal={() => setOpenModal(false)}
+          imageSrc={imageBaseUrl + newnessData.imageFilePath}
+          button={{ cancel: "Bekor qilish", confirm: "O'chirish" }}
+          title="Haqiqatdan ham ushbu yangilikni o'chirmoqchimisiz?"
+        />
+      )}
     </>
   );
 };
