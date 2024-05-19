@@ -1,14 +1,16 @@
-import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./authSlice";
-import productsDataSlice from "./productsDataSlice";
+import newsDataSlice from "./newsDataSlice";
 import usersDataSlice from "./usersDataSlice";
 import reviewsDataSlice from "./reviewsDataSlice";
+import { configureStore } from "@reduxjs/toolkit";
+import productsDataSlice from "./productsDataSlice";
 
 export const store = configureStore({
   reducer: {
     authData: authSlice,
-    productsData: productsDataSlice,
+    newsData: newsDataSlice,
     usersData: usersDataSlice,
     reviewsData: reviewsDataSlice,
+    productsData: productsDataSlice,
   },
 });
