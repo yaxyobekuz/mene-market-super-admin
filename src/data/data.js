@@ -55,3 +55,5 @@ export const tabButtons = [
     name: "/toys",
   },
 ];
+
+export const imageBaseUrl = "https://menemarket-8699a792d090.herokuapp.com/";
