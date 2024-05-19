@@ -12,12 +12,18 @@ export const getElement = (e, className) => {
 };
 
 export const checkTheInputsValueLength = (inputs) => {
-  return inputs.every((input) => {
-    if (input.value.length > 0) {
+  inputs.forEach((input) => {
+    if (input.value.trim().length > 0) {
       input.classList.remove("!border-red-500");
-      return true;
     } else {
       input.classList.add("!border-red-500");
+    }
+  });
+
+  return inputs.every((input) => {
+    if (input.value.trim().length > 0) {
+      return true;
+    } else {
       input.focus();
       return false;
     }
