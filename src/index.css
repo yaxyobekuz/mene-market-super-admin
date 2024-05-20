@@ -42,6 +42,14 @@
     @apply !hidden;
   }
 
+  /* default scroll */
+  .default-scroll::-webkit-scrollbar {
+    @apply w-3 bg-transparent;
+  }
+  .default-scroll::-webkit-scrollbar-thumb {
+    @apply bg-brand-dark-800/70 rounded-full border-solid border-x-2 border-brand-creamy-400;
+  }
+
   /* buttons */
   .main-btn {
     @apply bg-brand-dark-800 py-3 px-5 rounded-xl text-brand-creamy-400;
