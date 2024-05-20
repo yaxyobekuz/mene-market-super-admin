@@ -1,59 +1,104 @@
-export const tabButtons = [
+export const productTypesData = [
   {
     id: 0,
-    body: "Barchasi",
-    name: "",
+    name: "Barchasi",
+    path: "",
   },
   {
     id: 1,
-    body: "Aksessuarlar",
-    name: "/accessories",
+    name: "Elektronika",
+    path: "electronics",
   },
   {
     id: 2,
-    body: "Elektronika",
-    name: "/electronics",
+    name: "Maishiy texnika",
+    path: "household-appliances",
   },
   {
     id: 3,
-    body: "Mashinalar",
-    name: "/cars",
+    name: "Kiyimlar",
+    path: "clothes",
   },
   {
     id: 4,
-    body: "Gullar",
-    name: "/flowers",
+    name: "Oyoq kiyimlar",
+    path: "shoes",
   },
   {
     id: 5,
-    body: "Kompyuterlar",
-    name: "/computers",
+    name: "Aksessuarlar",
+    path: "accessories",
   },
   {
     id: 6,
-    body: "Parfumeriya",
-    name: "/parfumery",
+    name: "Parfumeriya",
+    path: "parfumery",
   },
   {
     id: 7,
-    body: "Telefonlar",
-    name: "/phones",
+    name: "Salomatlik",
+    path: "health",
   },
   {
     id: 8,
-    body: "Mebellar",
-    name: "/furniture",
+    name: "Uy-ro'zg'or buyumlari",
+    path: "household-items",
   },
   {
     id: 9,
-    body: "Oshxona jihozlari",
-    name: "/kitchen-appliances",
+    name: "Qurilish jihozlari",
+    path: "construction-equipment",
   },
   {
     id: 10,
-    body: "O'yinchoqlar",
-    name: "/toys",
+    name: "Avtomobil jihozlari",
+    path: "automotive-products",
+  },
+  {
+    id: 11,
+    name: "Bolalar uchun mahsulotlar",
+    path: "products-for-children",
+  },
+  {
+    id: 12,
+    name: "Sevimli mashg'ulot va ijodkorlik",
+    path: "hobby-and-creativity",
+  },
+  {
+    id: 13,
+    name: "Sport va dam olish",
+    path: "sports-and-recreation",
+  },
+  {
+    id: 14,
+    name: "Oziq-ovqat mahsulotlari",
+    path: "food-products",
+  },
+  {
+    id: 15,
+    name: "Maishiy kimyoviy moddalar",
+    path: "household-chemicals",
+  },
+  {
+    id: 16,
+    name: "Hayvonlar uchun mahsulotlar",
+    path: "products-for-animals",
+  },
+  {
+    id: 17,
+    name: "Kitoblar",
+    path: "books",
+  },
+  {
+    id: 18,
+    name: "Kottej, bog' va uy",
+    path: "garden-and-house",
+  },
+  {
+    id: 19,
+    name: "Boshqa",
+    path: "other",
   },
 ];
 
-export const imageBaseUrl = "https://menemarket-8699a792d090.herokuapp.com/";
+export const imageBaseUrl = "https:/menemarket-8699a792d090.herokuapp.com/";
