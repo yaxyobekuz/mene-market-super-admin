@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useParams } from "react-router-dom";
 
 // axios
 import axios from "../axios/axios";
@@ -11,31 +11,31 @@ import {
   setProductsData,
 } from "../store/productsDataSlice";
 
-// tab buttons
-import { tabButtons } from "../data/data";
+// data
+import { imageBaseUrl, productTypesData } from "../data/data";
 
 // toast
 import { toast } from "react-toastify";
 
 // components
+import Product from "../components/Product";
+import NoData from "../components/NoData";
 import ConfirmModal from "../components/ConfirmModal";
 import ProductSkeletonLoader from "../components/ProductSkeletonLoader";
+import RecommendationSection from "../components/RecommendationSection";
 
 // images
-import copyIcon from "../assets/images/copy.svg";
-import doneIcon from "../assets/images/done.svg";
 import searchImg from "../assets/images/search.svg";
 import reloadImg from "../assets/images/reload.svg";
 import userImg from "../assets/images/edit-user.svg";
-import deleteIcon from "../assets/images/delete.svg";
 import reviewsImg from "../assets/images/reviews.svg";
 import requestsImg from "../assets/images/requests.svg";
 import productAddImg from "../assets/images/product-add.svg";
 import findProductImg from "../assets/images/find-product.svg";
-import topRightArrowImg from "../assets/images/top-right-arrow.svg";
 const Products = () => {
   const dispatch = useDispatch();
   const isOnline = navigator.onLine;
+  const { productType } = useParams();
   const searchInputRef = useRef(null);
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
@@ -43,7 +43,7 @@ const Products = () => {
   const [productData, setProductData] = useState([]);
   const { authData } = useSelector((store) => store.authData);
   const { productsData } = useSelector((store) => store.productsData);
-  const [products, setProducts] = useState(productsData ? productsData : []);
+  const [products, setProducts] = useState([]);
 
   // get products data
   const getProductsData = () => {
@@ -97,11 +97,6 @@ const Products = () => {
     }
   };
 
-  // format number
-  const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
-
   // search products
   const handleProductsSearch = (event) => {
     event.preventDefault();
@@ -119,18 +114,18 @@ const Products = () => {
     }
   };
 
-  // set products
+  // set products data
   useEffect(() => {
-    setProducts(productsData);
-  }, [productsData]);
+    if (!productType) {
+      setProducts(productsData);
+    } else {
+      const filteredProductsByType = productsData.filter((product) => {
+        return product.productType === productType;
+      });
 
-  const calculateTotalCount = (arr) => {
-    let totalCount = 0;
-    for (let index = 0; index < arr.length; index++) {
-      totalCount += arr[index].count;
+      setProducts(filteredProductsByType);
     }
-    return totalCount;
-  };
+  }, [productsData, productType]);
 
   return (
     <>
@@ -174,18 +169,18 @@ const Products = () => {
             </Link>
           </div>
 
-          {/* nav */}
+          {/* nav product types*/}
           <nav className="overflow-x-auto hidden-scroll p-1 mb-4 bg-brand-dark-800/5 rounded-2xl md:mb-7 xs:p-1.5">
             <ul className="flex justify-between gap-2 w-full sm:gap-5">
-              {tabButtons.map((button) => {
+              {productTypesData.map((type, index) => {
                 return (
-                  <li key={button.id}>
+                  <li key={type.id}>
                     <NavLink
-                      to={"/products" + button.name}
+                      to={index === 0 ? "/products" : `/products/${type.path}`}
                       className="inline-block min-w-max p-2.5 rounded-xl text-sm transition-colors duration-300 hover:bg-brand-dark-800 hover:text-brand-creamy-400 xs:text-base sm:px-3 sm:py-2.5"
                       end
                     >
-                      {button.body}
+                      {type.name}
                     </NavLink>
                   </li>
                 );
@@ -250,172 +245,16 @@ const Products = () => {
           {!loader ? (
             <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {products &&
-                products.map((product, index) => {
+                products.map((product) => {
                   return (
-                    <li key={index} className="flex flex-col gap-2.5">
-                      {/* image wrapper */}
-                      <div className="relative">
-                        <img
-                          width={295}
-                          height={295}
-                          src={
-                            product.images &&
-                            "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-                              product.images[0]
-                          }
-                          alt="product image"
-                          className="w-full aspect-square bg-brand-dark-800/10 rounded-2xl object-cover object-center"
-                        />
-
-                        {/* badges */}
-                        <div className="flex items-center gap-2 w-full flex-wrap absolute top-4 inset-x-0 px-4">
-                          {product.isArchived ? (
-                            <span className="bg-red-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
-                              Arxivlangan
-                            </span>
-                          ) : (
-                            <span className="bg-green-600 py-0.5 px-1.5 rounded text-xs font-normal text-white">
-                              Sotuvda
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* content header */}
-                      <div className="flex items-center justify-between">
-                        <p>
-                          {product.productType ? product.productType : "Boshqa"}
-                        </p>
-
-                        {/* copy id button */}
-                        <button
-                          className="flex items-center gap-0.5 disabled:opacity-70"
-                          onClick={(e) => {
-                            const btn = e.currentTarget;
-                            const copyIcon = btn.querySelector(".js-copy-icon");
-                            const doneIcon = btn.querySelector(".js-done-icon");
-
-                            // set disabled
-                            btn.disabled = true;
-                            copyIcon.classList.add("hidden");
-                            doneIcon.classList.remove("hidden");
-                            navigator.clipboard.writeText(product.productId);
-
-                            // remove disabled
-                            setTimeout(() => {
-                              btn.disabled = false;
-                              copyIcon.classList.remove("hidden");
-                              doneIcon.classList.add("hidden");
-                            }, 2000);
-                          }}
-                        >
-                          ID{" "}
-                          <img
-                            width={20}
-                            height={20}
-                            src={copyIcon}
-                            alt="copy icon"
-                            className="js-copy-icon"
-                          />
-                          <img
-                            width={20}
-                            height={20}
-                            src={doneIcon}
-                            alt="done icon"
-                            className="js-done-icon hidden"
-                          />
-                        </button>
-                      </div>
-
-                      {/* main */}
-                      <div className="flex flex-col grow gap-2">
-                        {/* title */}
-                        <h3 className="text-lg font-semibold">
-                          {product.name}
-                        </h3>
-
-                        {/* product brand */}
-                        <div className="flex items-end gap-1 text-sm">
-                          <p className="whitespace-nowrap">Brend</p>
-                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                          <p className="whitespace-nowrap truncate">
-                            {product.brand}
-                          </p>
-                        </div>
-
-                        {/* count */}
-                        <div className="flex items-end gap-1 text-sm">
-                          <p className="whitespace-nowrap">Sotuvda mavjud</p>
-                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                          <p className="whitespace-nowrap truncate">
-                            {calculateTotalCount(product.productTypes)} ta
-                          </p>
-                        </div>
-
-                        {/* sold count */}
-                        <div className="flex items-end gap-1 text-sm">
-                          <p className="whitespace-nowrap">Sotilgan</p>
-                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                          <p className="whitespace-nowrap truncate">
-                            {formatNumber(product.numberSold)} ta
-                          </p>
-                        </div>
-
-                        {/* ads price */}
-                        <div className="flex items-end gap-1 text-sm">
-                          <p className="whitespace-nowrap">Reklama narxi</p>
-                          <div className="grow min-w-4 border-b-2 border-brand-dark-800 border-dotted mb-1.5"></div>
-                          <p className="whitespace-nowrap truncate">
-                            {formatNumber(product.advertisingPrice)} so'm
-                          </p>
-                        </div>
-
-                        {/* price wrapper */}
-                        <div className="flex items-center flex-wrap gap-x-3 gap-y-0">
-                          <p>{formatNumber(product.price)} so'm</p>
-
-                          {/* product scid price */}
-                          {product.scidPrice && product.scidPrice !== 0 ? (
-                            <del className="text-brand-dark-800/70">
-                              {formatNumber(product.scidPrice)} so'm
-                            </del>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-
-                        {/* buttons wrapper */}
-                        <div className="flex items-end grow">
-                          <div className="flex gap-3 w-full">
-                            <Link
-                              to={"/products/product/edit/" + product.productId}
-                              className="flex items-center justify-center gap-1 w-full border-2 border-brand-dark-800  rounded-xl py-2.5"
-                            >
-                              {/* <img src="" alt="" /> */}
-                              <span className="font-semibold text-center">
-                                Tahrirlash
-                              </span>
-                            </Link>
-
-                            {/* delete product btn */}
-                            <button
-                              onClick={() => {
-                                setProductData(product);
-                                setOpenModal(true);
-                              }}
-                              className="flex items-center justify-center w-12 shrink-0 aspect-square bg-brand-dark-800 rounded-xl"
-                            >
-                              <img
-                                width={32}
-                                height={32}
-                                src={deleteIcon}
-                                alt="delete iconx"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
+                    <Product
+                      key={product.productId}
+                      product={product}
+                      action={() => {
+                        setProductData(product);
+                        setOpenModal(true);
+                      }}
+                    />
                   );
                 })}
             </ul>
@@ -427,93 +266,40 @@ const Products = () => {
               ))}
             </ul>
           )}
+
+          {!loader && products.length === 0 && <NoData />}
         </div>
       </div>
 
       {/* recommendation section */}
-      <section className="py-12">
-        <div className="container">
-          <h2 className="mb-7">Ushbu sahifaga oid</h2>
-
-          {/* list */}
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <li>
-              <Link
-                to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={reviewsImg}
-                  alt="go to reviews page"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Izohlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/requests"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={147}
-                  height={147}
-                  src={requestsImg}
-                  alt="requests image"
-                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">Murojaatlar</h3>
-              </Link>
-            </li>
-            <li className="col-span-1 sm:col-span-2 lg:col-span-1">
-              <Link
-                to="/users"
-                className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={userImg}
-                  alt="user image"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Foydalanuvchilarni boshqarish
-                </h3>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <RecommendationSection
+        items={[
+          {
+            title: "Izohlarni boshqarish",
+            path: "reviews",
+            image: {
+              src: reviewsImg,
+              alt: "reviews image",
+            },
+          },
+          {
+            title: "Murojaatlar",
+            path: "appeals",
+            image: {
+              src: requestsImg,
+              alt: "appeals image",
+            },
+          },
+          {
+            title: "Foydalanuvchilar",
+            path: "users",
+            image: {
+              src: userImg,
+              alt: "users image",
+            },
+          },
+        ]}
+      />
 
       {/* confirm modal (delete product) */}
       {openModal && (
@@ -526,9 +312,8 @@ const Products = () => {
           button={{ cancel: "Bekor qilish", confirm: "O'chirish" }}
           title="Haqiqatdan ham ushbu mahsulotni o'chirmoqchimisiz?"
           imageSrc={
-            productData.imageMetadatas.length > 0 &&
-            "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-              productData.imageMetadatas[0]
+            productData.imageMetadatas &&
+            imageBaseUrl + productData.imageMetadatas[0].mediumImageFilePath
           }
         />
       )}
