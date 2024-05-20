@@ -11,6 +11,9 @@ import { addProductToProductsData } from "../store/productsDataSlice";
 import "../css/antd.css";
 import { Select } from "antd";
 
+// data
+import { productTypesData } from "../data/data";
+
 // helpers
 import {
   getElement,
@@ -47,6 +50,12 @@ const ProductAdd = () => {
   const { authData } = useSelector((store) => store.authData);
   const [openSelectedImages, setOpenSelectedImages] = useState(false);
   const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
+
+  // available products type
+  const productsType = productTypesData.map((type) => {
+    return { value: type.path, label: type.name };
+  });
+  productsType.shift();
 
   // select images
   const handleImageChange = (event) => {
@@ -368,7 +377,7 @@ const ProductAdd = () => {
 
                 {/* selected images */}
                 {openSelectedImages && (
-                  <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
+                  <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto default-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
                     <div className="h-full pt-4 pb-2 space-y-4">
                       <div>
                         {selectedImages.length > 0 ? (
@@ -496,9 +505,7 @@ const ProductAdd = () => {
                         setOpenNewProductTypes(!openNewProductTypes);
                       }
                     }}
-                    className={`${
-                      loader ? "cursor-default" : "cursor-pointer"
-                    } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
+                    className="flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl"
                   >
                     <span>
                       Yangi mahsulot turlari soni: {newProductTypes.length} ta
@@ -515,7 +522,7 @@ const ProductAdd = () => {
 
                   {/* dropdown */}
                   {openNewProductTypes && (
-                    <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
+                    <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto default-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
                       {/* dropdown content */}
                       <div className="h-full pt-4 pb-2 space-y-4">
                         {/* list wrapper */}
@@ -670,17 +677,7 @@ const ProductAdd = () => {
                     defaultValue="Boshqa"
                     disabled={loader}
                     onChange={(value) => setProductType(value)}
-                    options={[
-                      { value: "other", label: "Boshqa" },
-                      { value: "car", label: "Mashina" },
-                      { value: "telephone", label: "Telefon" },
-                      { value: "computer", label: "Kompyuter" },
-                      { value: "parfumery", label: "Parfumeriya" },
-                      { value: "health", label: "Salomatlik" },
-                      { value: "toy", label: "O'yinchoq" },
-                      { value: "flower", label: "Gul" },
-                      { value: "furniture", label: "Mebel" },
-                    ]}
+                    options={productsType}
                   />
                 </label>
               </div>
