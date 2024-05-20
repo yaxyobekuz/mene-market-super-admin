@@ -7,11 +7,16 @@ import Footer from "../components/Footer";
 
 const MainRoot = () => {
   const location = useLocation();
+  const pathArr = location.pathname.split("/").filter((i) => i !== "");
+
+  // scroll to top
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (pathArr[0] === "products" && pathArr.length === 2) {
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [location]);
 
-  const pathArr = location.pathname.split("/").filter((i) => i !== "");
   return (
     <div className="flex flex-col min-h-screen">
       {pathArr[1] !== "chat" && <Header />}
