@@ -108,3 +108,11 @@ a.active {
 .Toastify__toast-body {
   @apply !font-fira-sans;
 }
+
+/* clears the ‘X’ from search input */
+:is(input[type="search"])::-webkit-search-decoration,
+::-webkit-search-cancel-button,
+::-webkit-search-results-button,
+::-webkit-search-results-decoration {
+  display: none;
+}
