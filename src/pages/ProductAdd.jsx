@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
 // axios
-import axios from "../axios/axios";
+import axiosInstance from "../axios/axiosInstance";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addProductToProductsData } from "../store/productsDataSlice";
 
 // antd
@@ -44,10 +44,9 @@ const ProductAdd = () => {
   const [loader, setLoader] = useState(false);
   const newProductTypeDropdownRef = useRef(null);
   const addNewProductTypeInputsWrapperRef = useRef(null);
-  const [selectedImages, setSelectedImages] = useState([]);
   const [productType, setProductType] = useState("other");
+  const [selectedImages, setSelectedImages] = useState([]);
   const [newProductTypes, setNewProductTypes] = useState([]);
-  const { authData } = useSelector((store) => store.authData);
   const [openSelectedImages, setOpenSelectedImages] = useState(false);
   const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
 
@@ -258,12 +257,8 @@ const ProductAdd = () => {
         };
 
         // add product
-        axios
-          .post("/Product", formData, {
-            headers: {
-              Authorization: "Bearer " + authData.data.token,
-            },
-          })
+        axiosInstance
+          .post("/Product", formData)
           .then((res) => {
             if (res.status === 200) {
               dispatch(addProductToProductsData(res.data));
@@ -306,7 +301,7 @@ const ProductAdd = () => {
         <div className="container">
           <h1 className="mb-7">Yangi mahsulot qo'shish</h1>
 
-          {/* content */}
+          {/* main content */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* add image */}
             <div className="flex flex-col gap-3">
