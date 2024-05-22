@@ -6,11 +6,12 @@ import Loader from "../components/Loader";
 // images
 import crossImg from "../assets/images/cross.svg";
 import searchImg from "../assets/images/search.svg";
-const Search = ({ action, loader, defaultValue, placeholder }) => {
+
+const Search = ({ onSubmit, action, loader, defaultValue, placeholder }) => {
   const searchInputRef = useRef(null);
   const [value, setValue] = useState("");
   return (
-    <form onSubmit={action}>
+    <form onSubmit={onSubmit}>
       <label className="flex items-center gap-2 bg-brand-dark-800/5 p-1 pl-3 rounded-2xl cursor-text border-2 border-transparent focus-within:border-brand-dark-800 xs:gap-2.5 sm:pl-3.5 sm:gap-3.5">
         {/* search icon */}
         <img
@@ -38,6 +39,7 @@ const Search = ({ action, loader, defaultValue, placeholder }) => {
           className={`${value.length > 0 ? "block" : "hidden"}`}
           onClick={() => {
             setValue("");
+            action && action();
             searchInputRef.current.focus();
             searchInputRef.current.value = "";
           }}
