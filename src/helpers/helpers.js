@@ -58,7 +58,7 @@ export const formatDate = (input) => {
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
 
-  const formattedDate = `${year}.${month}.${day}`;
+  const formattedDate = `${day}.${month}.${year}`;
 
   return formattedDate;
 };
