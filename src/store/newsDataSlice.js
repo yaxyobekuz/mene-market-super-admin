@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialStateValues = {
-  newsData: {},
+  newsData: [],
 };
 
 export const newsDataSlice = createSlice({
@@ -9,13 +9,13 @@ export const newsDataSlice = createSlice({
   initialState: initialStateValues,
   reducers: {
     setNewsData: (state, action) => {
-      state.newsData[action.payload.dataIndex] = action.payload.data;
+      state.newsData = action.payload;
     },
 
     deleteNewsData: (state, action) => {
-      state.newsData[action.payload.dataIndex] = state.newsData[
-        action.payload.dataIndex
-      ].filter((news) => news.id !== action.payload.id);
+      state.newsData = state.newsData.filter(
+        (news) => news.id !== action.payload
+      );
     },
   },
 });
