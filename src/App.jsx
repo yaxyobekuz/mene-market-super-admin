@@ -29,6 +29,7 @@ import Newness from "./pages/Newness";
 import Appeals from "./pages/Appeals";
 import Contest from "./pages/Contest";
 import Page404 from "./pages/Page404";
+import Profile from "./pages/Profile";
 import Contests from "./pages/Contests";
 import Products from "./pages/Products";
 import Payments from "./pages/Payments";
@@ -37,13 +38,13 @@ import EditProduct from "./pages/EditProduct";
 import DonationBox from "./pages/DonationBox";
 import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
-import Profile from "./pages/Profile";
 
 const App = () => {
   const { authData } = useSelector((store) => store.authData);
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>
+        {/* main */}
         <Route
           path="/"
           element={
@@ -72,8 +73,8 @@ const App = () => {
 
           {/* news */}
           <Route path="news" element={<Outlet />}>
+            <Route index element={<News />} />
             <Route path="add" element={<AddNews />} />
-            <Route index path=":newsPageIndex?" element={<News />} />
             <Route index path=":newness/:newnessId" element={<Newness />} />
           </Route>
 

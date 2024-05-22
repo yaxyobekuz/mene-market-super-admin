@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
 // axios
-import axios from "../axios/axios";
+import axiosInstance from "../axios/axiosInstance";
 
 // helpers
 import {
@@ -16,6 +16,7 @@ import {
 import { imageBaseUrl } from "../data/data";
 
 // components
+import NoData from "../components/NoData";
 import ConfirmModal from "../components/ConfirmModal";
 import RecommendationSection from "../components/RecommendationSection";
 
@@ -39,28 +40,22 @@ import newsAddImg from "../assets/images/news-add.svg";
 import productsImg from "../assets/images/products.svg";
 import arrowRightImg from "../assets/images/arrow-right-solid.svg";
 const News = () => {
-  const currentPageIndex = 0;
   const dispatch = useDispatch();
-  const [news, setNews] = useState([]);
   const [loader, setLoader] = useState(true);
   const [loader2, setLoader2] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [newnessData, setNewnessData] = useState([]);
   const { newsData } = useSelector((store) => store.newsData);
-  const { authData } = useSelector((store) => store.authData);
 
   // get news data from server
   const getNewsData = () => {
     setLoader(true);
 
-    axios
+    axiosInstance
       .get("News")
       .then((res) => {
         if (res.status === 200) {
-          // setNews(res.data);
-          dispatch(
-            setNewsData({ dataIndex: currentPageIndex, data: res.data })
-          );
+          dispatch(setNewsData(res.data));
         } else {
           errorMessage("Malumotlarni yuklab bo'lmadi!");
         }
@@ -71,28 +66,23 @@ const News = () => {
 
   // get news data
   useEffect(() => {
-    if (!newsData[currentPageIndex]) {
+    if (!newsData || newsData.length === 0) {
       getNewsData();
     } else {
-      setNews(newsData[currentPageIndex]);
-      setTimeout(() => setLoader(false), 500);
+      setLoader(false);
     }
-  }, [newsData]);
+  }, []);
 
   // delete news
   const deleteNews = () => {
     setLoader2(true);
 
-    axios
-      .delete("News?Id=" + newnessData.id, {
-        headers: { Authorization: "Bearer " + authData.data.token },
-      })
+    axiosInstance
+      .delete("News?Id=" + newnessData.id)
       .then((res) => {
         if (res.status === 200) {
           setOpenModal(false);
-          dispatch(
-            deleteNewsData({ dataIndex: currentPageIndex, id: res.data.id })
-          );
+          dispatch(deleteNewsData(res.data.id));
           successMessage("Yangilik muvaffaqiyatli o'chirildi!");
         } else {
           errorMessage();
@@ -160,7 +150,9 @@ const News = () => {
                 alt="news icon"
                 className="size-6"
               />
-              <span>{4}ta</span>
+              <span>
+                {newsData && newsData.length !== 0 ? newsData.length : 0}ta
+              </span>
             </div>
 
             <Link
@@ -182,11 +174,12 @@ const News = () => {
           </div>
 
           {/* news list */}
-          {news &&
-            (!loader ? (
-              // news
+          {!loader ? (
+            // news
+            newsData &&
+            newsData.length !== 0 && (
               <ul className="space-y-5">
-                {news.map((newness) => {
+                {newsData.map((newness) => {
                   return (
                     <li key={newness.id} className="w-full">
                       <div className="flex flex-col gap-4 w-full sm:bg-brand-dark-800/5 rounded-2xl sm:flex-row md:gap-5 md:p-5">
@@ -284,52 +277,62 @@ const News = () => {
                   );
                 })}
               </ul>
-            ) : (
-              // loader
-              <ul className="space-y-5">
-                {[0, 1, 2, 3, 4, 5, 6, 7].map((item) => {
-                  return (
-                    <li key={item} className="flex flex-col gap-4">
+            )
+          ) : (
+            // loader
+            <ul className="space-y-5">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((item) => {
+                return (
+                  <li key={item} className="flex flex-col gap-4">
+                    <Skeleton.Input
+                      active
+                      className="!w-full !h-auto  aspect-video sm:aspect-auto sm:!h-[192px] md:!h-[220px] lg:!h-[256px] !rounded-2xl"
+                    />
+
+                    {/* content */}
+                    <div className="flex flex-col gap-2.5 sm:hidden">
+                      {/* title */}
                       <Skeleton.Input
                         active
-                        className="!w-full !h-auto  aspect-video sm:aspect-auto sm:!h-[192px] md:!h-[220px] lg:!h-[256px] !rounded-2xl"
+                        className="!w-2/3 !h-5 !rounded-lg"
+                      />
+                      <Skeleton.Input
+                        active
+                        className="!w-full !h-5 !rounded-lg"
                       />
 
-                      {/* content */}
-                      <div className="flex flex-col gap-2.5 sm:hidden">
-                        {/* title */}
+                      {/* description */}
+                      <div className="flex flex-col gap-2">
                         <Skeleton.Input
                           active
-                          className="!w-2/3 !h-5 !rounded-lg"
+                          className="!w-full !h-4 !rounded-lg"
                         />
                         <Skeleton.Input
                           active
-                          className="!w-full !h-5 !rounded-lg"
-                        />
-
-                        {/* description */}
-                        <div className="flex flex-col gap-2">
-                          <Skeleton.Input
-                            active
-                            className="!w-full !h-4 !rounded-lg"
-                          />
-                          <Skeleton.Input
-                            active
-                            className="!w-full !h-4 !rounded-lg"
-                          />
-                        </div>
-
-                        {/* date & timeF */}
-                        <Skeleton.Input
-                          active
-                          className="!w-1/2 !h-4 !rounded-lg xs:!h-5"
+                          className="!w-full !h-4 !rounded-lg"
                         />
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            ))}
+
+                      {/* date & timeF */}
+                      <Skeleton.Input
+                        active
+                        className="!w-1/2 !h-4 !rounded-lg xs:!h-5"
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {/* no data */}
+          {((!loader && newsData.length === 0) || !newsData) && (
+            <NoData
+              description={
+                "Sahifadada hech qanday yangilik mavjud emas. Balki ma'lumotlarni qayta yangilab ko'rarsiz."
+              }
+            />
+          )}
         </div>
       </div>
 
