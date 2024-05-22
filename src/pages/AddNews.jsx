@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 
 // axios
-import axios from "../axios/axios";
-
-// redux
-import { useSelector } from "react-redux";
-
-// toast (notification)
-import { toast } from "react-toastify";
+import axiosInstance from "../axios/axiosInstance";
 
 // helpers
-import { checkTheInputsValueLength, getElement } from "../helpers/helpers";
+import {
+  checkTheInputsValueLength,
+  errorMessage,
+  getElement,
+  successMessage,
+} from "../helpers/helpers";
 
 // loader (component)
 import Loader from "../components/Loader";
@@ -23,10 +22,8 @@ import productsImg from "../assets/images/products.svg";
 import requestsImg from "../assets/images/requests.svg";
 
 const AddNews = () => {
-  const isOnline = navigator.onLine;
   const [loader, setLoader] = useState(false);
   const [imageData, setImageData] = useState(null);
-  const { authData } = useSelector((store) => store.authData);
 
   // select news image
   const handleImageSelect = (event) => {
@@ -40,7 +37,7 @@ const AddNews = () => {
     }
   };
 
-  // add product
+  // add news
   const addNews = (event) => {
     event.preventDefault();
 
@@ -51,7 +48,7 @@ const AddNews = () => {
     // form elements arr
     const inputs = [elNewsTitle, elNewsDesc];
 
-    // add product
+    // add news
     if (!loader && checkTheInputsValueLength(inputs)) {
       if (imageData) {
         setLoader(true);
@@ -67,40 +64,28 @@ const AddNews = () => {
           allowSaveFile: true,
         };
 
-        // add product
-        axios
-          .post("/News", formData, {
-            headers: {
-              Authorization: "Bearer " + authData.data.token,
-              "Content-Type": "application/json; charset=utf-8",
-            },
-          })
+        // add news
+        axiosInstance
+          .post("/News", formData)
           .then((res) => {
             if (res.status === 200) {
-              // notification
-              toast.success("Yangilik muvaffaqiyatli qo'shildi!");
-
               // reset values
-              inputs.forEach((input) => (input.value = ""));
               setImageData(null);
+              inputs.forEach((input) => (input.value = ""));
+
+              // notification
+              successMessage("Yangilik muvaffaqiyatli qo'shildi!");
             } else {
-              toast.error("Nimadir xato ketdi!");
+              errorMessage("Nimadir xato ketdi!");
             }
           })
-          .catch(() => {
-            // error notification
-            if (isOnline) {
-              toast.error("Nimadir xato ketdi!");
-            } else {
-              toast.error("Internet aloqasi mavjud emas!");
-            }
-          })
+          .catch(() => errorMessage.offline("Yangilik qo'shishida xatolik!"))
           .finally(() => setLoader(false));
       } else {
-        toast.error("Hech qanday rasm yuklanmadi!");
+        errorMessage("Hech qanday rasm yuklanmadi!");
       }
     } else {
-      toast.error("Xatolik!");
+      errorMessage("Xatolik!");
     }
   };
 
