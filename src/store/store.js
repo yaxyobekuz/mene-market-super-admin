@@ -1,4 +1,4 @@
-import authSlice from "./authSlice";
+import loginSlice from "./loginSlice";
 import newsDataSlice from "./newsDataSlice";
 import usersDataSlice from "./usersDataSlice";
 import reviewsDataSlice from "./reviewsDataSlice";
@@ -7,7 +7,7 @@ import productsDataSlice from "./productsDataSlice";
 
 export const store = configureStore({
   reducer: {
-    authData: authSlice,
+    isLoggedIn: loginSlice,
     newsData: newsDataSlice,
     usersData: usersDataSlice,
     reviewsData: reviewsDataSlice,
