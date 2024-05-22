@@ -55,6 +55,23 @@
     @apply bg-brand-dark-800 py-3 px-5 rounded-xl text-brand-creamy-400;
   }
 
+  /* nav */
+  .main-nav {
+    @apply overflow-x-auto hidden-scroll p-1.5 bg-brand-dark-800/5 rounded-2xl;
+  }
+
+  .main-nav-links-wrapper {
+    @apply flex justify-between gap-1.5 w-full xs:gap-2 sm:gap-3 md:gap-4;
+  }
+
+  .main-nav-link {
+    @apply inline-block min-w-max px-3 py-3 sm:py-2.5 rounded-xl text-sm transition-colors hover:bg-brand-dark-800/10 sm:text-base;
+  }
+
+  .main-nav-link.active {
+    @apply bg-brand-dark-800 text-brand-creamy-400;
+  }
+
   /* animations */
   @keyframes effect-shake {
     0%,
@@ -97,11 +114,6 @@
   .is-invalid {
     @apply !border-[#e44040];
   }
-}
-
-/* active */
-a.active {
-  @apply bg-brand-dark-800 text-brand-creamy-400;
 }
 
 /* other */
