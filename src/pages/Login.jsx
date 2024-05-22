@@ -1,35 +1,33 @@
 import React, { useEffect, useState } from "react";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
-import { changeAuthData } from "../store/authSlice";
+import { useDispatch } from "react-redux";
+import { changeLogin } from "../store/loginSlice";
 
 // axios
-import axios from "../axios/axios";
+import axiosInstance from "../axios/axiosInstance";
 
-// regex
+// helpers
 import { emailRegex, passwordRegex } from "../helpers/regexes";
+import { errorMessage, getElement, successMessage } from "../helpers/helpers";
 
-// loader
+// components
 import Loader from "../components/Loader";
 
-// toastify
-import { toast } from "react-toastify";
-
 // images
-import rabbitImg from "../assets/images/rabbit.png";
 import eye from "../assets/images/eye.svg";
+import rabbitImg from "../assets/images/rabbit.png";
 import eyeSlash from "../assets/images/eye-slash.svg";
 
 const Login = () => {
-  const { authData } = useSelector((store) => store.authData);
   const dispatch = useDispatch();
-  const [mainLoader, setMainLoader] = useState(true);
-  const [secondaryLoader, setSecondaryLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
+  const [loader2, setLoader2] = useState(false);
+  const authData = JSON.parse(localStorage.getItem("auth"));
   const [isPasswordInput, setIsPasswordInput] = useState(true);
 
   const validateInput = (pattern, input) => {
-    if (pattern.test(input.value)) {
+    if (pattern.test(input.value.trim())) {
       input.classList.remove("is-invalid");
       return true;
     } else {
@@ -41,95 +39,80 @@ const Login = () => {
 
   // auto login
   useEffect(() => {
-    if (authData.data) {
-      axios
-        .get("/User/Profile", {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        })
+    if (authData) {
+      axiosInstance
+        .get("/User/Profile")
         .then((res) => {
           if (
-            authData.data.email === res.data.email &&
-            authData.data.password === res.data.password
+            authData.email === res.data.email &&
+            authData.password === res.data.password
           ) {
-            dispatch(changeAuthData());
+            dispatch(changeLogin(true));
           } else {
-            dispatch(changeAuthData({ data: null, isLoggedIn: false }));
+            dispatch(changeLogin(false));
           }
         })
-        .finally(() => setMainLoader(false));
+        .finally(() => setLoader(false));
     } else {
-      setMainLoader(false);
+      setLoader(false);
     }
   }, []);
 
   // handle login
-  const login = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
 
     // form elements
-    const elEmailInput = e.target.querySelector(".el-email-input");
-    const elPasswordInput = e.target.querySelector(".el-password-input");
-    const elSubmitBtn = e.target.querySelector(".el-submit-btn");
+    const elEmailInput = getElement(e, ".js-email-input");
+    const elPasswordInput = getElement(e, ".js-password-input");
 
     // check form elements value
     const emailInput = validateInput(emailRegex, elEmailInput);
     const passwordInput = validateInput(passwordRegex, elPasswordInput);
 
-    if (emailInput && passwordInput && !secondaryLoader) {
-      setSecondaryLoader(true);
+    if (emailInput && passwordInput && !loader2) {
+      setLoader2(true);
 
-      axios
-        .post("/Accaunt/Login", {
-          email: elEmailInput.value,
-          password: elPasswordInput.value,
-        })
+      // form data
+      const formData = {
+        email: elEmailInput.value.trim(),
+        password: elPasswordInput.value.trim(),
+      };
+
+      axiosInstance
+        .post("/Accaunt/Login", formData)
         .then((res) => {
+          // set auth data to local storage
           localStorage.setItem(
             "auth",
             JSON.stringify({
               ...res.data,
-              email: elEmailInput.value,
-              password: elPasswordInput.value,
+              ...formData,
             })
           );
 
-          dispatch(
-            changeAuthData({
-              data: {
-                ...res.data,
-                email: elEmailInput.value,
-                password: elPasswordInput.value,
-              },
-              isLoggedIn: true,
-            })
-          );
+          // change login
+          dispatch(changeLogin(true));
 
           // notification
-          toast.success("Akkauntga muvafaqiyatli kirdingiz!");
+          successMessage("Akkauntga muvaffaqiyatli kirildi!");
         })
-        .catch(() => {
-          const isOnline = navigator.onLine;
-
-          // error notification
-          if (isOnline) {
-            toast.error("E-pochta yoki parol noto'g'ri!");
+        .catch((err) => {
+          if (err.code === "ECONNABORTED") {
+            errorMessage("So'rov vaqti tugdi!");
           } else {
-            toast.error("Internet aloqasi mavjud emas!");
+            errorMessage.offline("E-pochta yoki parol noto'g'ri!");
           }
         })
-        .finally(() => setSecondaryLoader(false));
+        .finally(() => setLoader2(false));
     }
   };
 
   return (
     <div className="flex items-center justify-center w-full min-h-screen">
-      {mainLoader ? (
-        <Loader size={32} />
-      ) : (
+      {!loader ? (
         <div className="flex flex-col items-center gap-4 bg-white rounded-2xl p-6 shadow-black/10 shadow-2xl">
-          {/* img */}
+          {/* login form image wrapper */}
           <div className="inline-block relative overflow-hidden rounded-full border-2 border-brand-dark-800 mx-auto">
             {/* obstacle */}
             <div
@@ -157,21 +140,23 @@ const Login = () => {
             />
           </div>
 
-          {/* title */}
+          {/* page title */}
           <h1 className="w-full !text-2xl !font-semibold">Kirish</h1>
+
+          {/* divider */}
           <hr className="w-full border-brand-dark-800/20" />
 
-          {/* form elements */}
-          <form onSubmit={login} className="space-y-4">
+          {/* login form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             {/* email */}
             <label className="flex flex-col gap-2 w-72">
               <span>E-pochta</span>
               <input
-                disabled={secondaryLoader}
                 type="email"
-                placeholder="E-pochta"
                 name="email"
-                className="el-email-input bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5"
+                disabled={loader2}
+                placeholder="E-pochta"
+                className="js-email-input bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5"
               />
             </label>
 
@@ -180,13 +165,14 @@ const Login = () => {
               <span>Parol</span>
               <div className="flex items-center relative w-full">
                 <input
-                  disabled={secondaryLoader}
-                  type={isPasswordInput ? "password" : "text"}
+                  name="password"
+                  disabled={loader2}
                   placeholder="Parol"
-                  name="Password"
-                  className="el-password-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5"
+                  type={isPasswordInput ? "password" : "text"}
+                  className="js-password-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5"
                 />
-                {/* toggle password btn */}
+
+                {/* set toggle password btn */}
                 <button
                   onClick={() => setIsPasswordInput(!isPasswordInput)}
                   type="button"
@@ -213,15 +199,17 @@ const Login = () => {
               </div>
             </label>
 
-            {/* btn */}
+            {/* submit button */}
             <button
-              disabled={secondaryLoader}
+              disabled={loader2}
               className="el-submit-btn flex justify-center w-full bg-brand-dark-800 rounded-xl py-3 px-3.5 text-brand-creamy-400 disabled:cursor-not-allowed"
             >
-              {secondaryLoader ? <Loader size={24} /> : "Kirish"}
+              {loader2 ? <Loader size={24} /> : "Kirish"}
             </button>
           </form>
         </div>
+      ) : (
+        <Loader size={32} />
       )}
     </div>
   );
