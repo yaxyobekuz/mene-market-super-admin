@@ -65,6 +65,7 @@ const FindProductById = () => {
       getProductData(productId);
     }
   }, []);
+
   const onSubmit = (event) => {
     event.preventDefault();
 
@@ -110,7 +111,7 @@ const FindProductById = () => {
         {/* search */}
         <div className="w-full">
           {/* search input wrapper */}
-          <Search action={onSubmit} defaultValue={productId} />
+          <Search onSubmit={onSubmit} defaultValue={productId} />
         </div>
 
         {/* product */}
