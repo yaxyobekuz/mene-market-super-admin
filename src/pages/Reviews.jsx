@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 // axios
-import axios from "../axios/axios";
+import axiosInstance from "../axios/axiosInstance";
 
 // antd
 import "../css/antd.css";
@@ -43,9 +43,6 @@ const Reviews = () => {
   const location = useLocation();
   const isOnline = navigator.onLine;
 
-  // auth data
-  const { authData } = useSelector((store) => store.authData);
-
   // reviews data
   const [reviewData, setReviewData] = useState({});
   const { reviewsData } = useSelector((store) => store.reviewsData);
@@ -66,12 +63,8 @@ const Reviews = () => {
     if (isOnline) {
       setLoader(true);
 
-      axios
-        .get("/Comment", {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        })
+      axiosInstance
+        .get("/Comment")
         .then((res) => {
           dispatch(setReviewsData(res.data));
         })
@@ -123,12 +116,8 @@ const Reviews = () => {
   const deleteReview = () => {
     setLoader2(true);
 
-    axios
-      .delete("/Comment?id=" + reviewData.id, {
-        headers: {
-          Authorization: "Bearer " + authData.data.token,
-        },
-      })
+    axiosInstance
+      .delete("/Comment?id=" + reviewData.id)
       .then((res) => {
         dispatch(deleteReviewData(res.data.id));
         setReviews(reviews.filter((review) => review.id !== res.data.id));
@@ -155,30 +144,22 @@ const Reviews = () => {
       (user) => user.userId === reviewData.userId
     );
 
-    axios
-      .put(
-        "/User",
-        {
-          user: {
-            userId: reviewData.userId,
-            firstName: reviewData.firstName,
-            lastName: reviewData.lastName,
-            email: reviewData.email,
-            password: reviewData.password,
-            balance: reviewData.balance,
-            isArchived: reviewData.isArchived ? false : true,
-            role: reviewData.role,
-            image: reviewData.image,
-            offerLinks: reviewData.offerLinks,
-            balanceHistorys: reviewData.balanceHistorys,
-          },
+    axiosInstance
+      .put("/User", {
+        user: {
+          userId: reviewData.userId,
+          firstName: reviewData.firstName,
+          lastName: reviewData.lastName,
+          email: reviewData.email,
+          password: reviewData.password,
+          balance: reviewData.balance,
+          isArchived: reviewData.isArchived ? false : true,
+          role: reviewData.role,
+          image: reviewData.image,
+          offerLinks: reviewData.offerLinks,
+          balanceHistorys: reviewData.balanceHistorys,
         },
-        {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        }
-      )
+      })
       .then((res) => {
         dispatch(
           editUserData({
@@ -336,7 +317,10 @@ const Reviews = () => {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <Link
-                                  to={"/products/product/find-by-id/" + review.productId}
+                                  to={
+                                    "/products/product/find-by-id/" +
+                                    review.productId
+                                  }
                                   className="flex items-center gap-1"
                                 >
                                   <span className="text-base font-bold line-clamp-1 sm:text-lg">

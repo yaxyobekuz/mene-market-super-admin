@@ -1,15 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-// axios
-import axios from "../axios/axios";
-
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import {
   addProductToProductsData,
   editProductDataToProductsData,
 } from "../store/productsDataSlice";
+
+// axios
+import axiosInstance from "../axios/axiosInstance";
+
+// helpers
+import {
+  getElement,
+  removeDotsFromNumber,
+  checkTheInputsValueLength,
+} from "../helpers/helpers";
+
+// components
+import Loader from "../components/Loader";
+import RecommendationSection from "../components/RecommendationSection";
 
 // antd
 import "../css/antd.css";
@@ -18,9 +29,6 @@ import { Skeleton } from "antd";
 
 // toast (notification)
 import { toast } from "react-toastify";
-
-// loader (component)
-import Loader from "../components/Loader";
 
 // swiper
 import "swiper/css";
@@ -33,14 +41,13 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 // images
 import image from "../assets/images/image.png";
 import plusImg from "../assets/images/plus.svg";
-import deleteImg from "../assets/images/delete.svg";
 import resetIcon from "../assets/images/reset.svg";
+import deleteImg from "../assets/images/delete.svg";
 import deleteIcon from "../assets/images/delete.svg";
 import reviewsImg from "../assets/images/reviews.svg";
 import productsImg from "../assets/images/products.svg";
 import arrowDownImg from "../assets/images/down-arrow.svg";
 import findProductImg from "../assets/images/find-product.svg";
-import topRightArrowImg from "../assets/images/top-right-arrow.svg";
 
 const EditProduct = () => {
   const dispatch = useDispatch();
@@ -67,12 +74,8 @@ const EditProduct = () => {
   const getProductData = () => {
     setLoader(true);
     if (isOnline) {
-      axios
-        .get("/Product/ById?id=" + productId, {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        })
+      axiosInstance
+        .get("/Product/ById?id=" + productId)
         .then((res) => {
           if (res.status === 200) {
             setproductData(res.data);
@@ -90,25 +93,6 @@ const EditProduct = () => {
       toast.error("Internet aloqasi mavjud emas!");
     }
   };
-
-  // set product data
-  useEffect(() => {
-    if (productsData.length > 0) {
-      const findProductData = productsData.find(
-        (product) => product.productId === productId
-      );
-
-      // set product data
-      if (findProductData) {
-        setproductData(findProductData);
-        setTimeout(() => setLoader(false), 1000);
-      } else {
-        getProductData();
-      }
-    } else {
-      getProductData();
-    }
-  }, []);
 
   // select images
   const handleImageChange = (event) => {
@@ -153,12 +137,7 @@ const EditProduct = () => {
     setSelectedImages(filteredImages);
   };
 
-  // set product type
-  const handleChange = (value) => {
-    setPproductType(value);
-  };
-
-  // format the input value
+  // format the number input value
   const formatTheValue = (e) => {
     const value = e.target.value;
 
@@ -173,7 +152,7 @@ const EditProduct = () => {
 
   // add new product type
   const handleNewProductTypeAdd = () => {
-    // form elements
+    // inputs
     const elNewProductTypeInput =
       addNewProductTypeInputsWrapperRef.current.querySelector(
         ".js-new-product-type-input"
@@ -182,79 +161,29 @@ const EditProduct = () => {
       addNewProductTypeInputsWrapperRef.current.querySelector(
         ".js-new-product-type-count-input"
       );
-
-    // form elements arr
-    const formElements = [elNewProductTypeCountInput, elNewProductTypeInput];
-
-    // checked form elements value arr
-    const checkValidFormElementValue = formElements.map((element) => {
-      if (element.value.length > 0) {
-        element.classList.remove("!border-red-500");
-        return true;
-      } else {
-        element.classList.add("!border-red-500");
-        element.focus();
-        return false;
-      }
-    });
-
-    // checked form elements value
-    const isValidFormElements = checkValidFormElementValue.every(
-      (element) => element
-    );
-
-    const priceToNumber = (value) => {
-      return Number(value.split(".").join(""));
-    };
+    const inputs = [elNewProductTypeCountInput, elNewProductTypeInput];
 
     // add new product type
-    if (isValidFormElements) {
-      if (newProductTypes.length > 0) {
-        const filteredProductTypes = newProductTypes.find((type) => {
-          return type.name === elNewProductTypeInput.value.trim();
-        });
+    if (checkTheInputsValueLength(inputs)) {
+      setNewProductTypes([
+        ...newProductTypes,
+        {
+          name: elNewProductTypeInput.value.trim(),
+          count: removeDotsFromNumber(elNewProductTypeCountInput.value),
+        },
+      ]);
 
-        // add new product type
-        if (!filteredProductTypes) {
-          setNewProductTypes([
-            ...newProductTypes,
-            {
-              id: newProductTypes.length,
-              name: elNewProductTypeInput.value.trim(),
-              count: priceToNumber(elNewProductTypeCountInput.value),
-            },
-          ]);
-
-          // reset the form elements value to default values
-          elNewProductTypeInput.value = "";
-          elNewProductTypeCountInput.value = "1";
-        } else {
-          toast.info("Ushbu mahsulot turi qo'shib bo'lingan!");
-          elNewProductTypeInput.classList.add("!border-red-500");
-          elNewProductTypeInput.focus();
-        }
-      } else {
-        setNewProductTypes([
-          {
-            id: 0,
-            name: elNewProductTypeInput.value.trim(),
-            count: priceToNumber(elNewProductTypeCountInput.value),
-          },
-        ]);
-
-        // reset the form elements value to default values
-        elNewProductTypeInput.value = "";
-        elNewProductTypeCountInput.value = "1";
-      }
+      elNewProductTypeInput.value = "";
+      elNewProductTypeCountInput.value = "1";
     } else {
-      toast.info("Ma'lumotlar to'ldirilmagan!");
+      toast.error("Ma'lumotlar to'ldirilmagan!");
     }
   };
 
   // delete new product type
-  const handleNewProductTypeDelete = (event) => {
-    const filteredNewProductTypes = newProductTypes.filter((type) => {
-      return type.name !== event.name;
+  const handleNewProductTypeDelete = (index) => {
+    const filteredNewProductTypes = newProductTypes.filter((_, typeIndex) => {
+      return typeIndex !== index;
     });
 
     setNewProductTypes(filteredNewProductTypes);
@@ -280,182 +209,6 @@ const EditProduct = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef, newProductTypeDropdownRef]);
-
-  // edit product
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // images to base 64
-    const imageData = await Promise.all(
-      selectedImages.map(async (image) => {
-        const reader = new FileReader();
-
-        return new Promise((resolve, reject) => {
-          reader.onload = (event) => {
-            resolve(event.target.result.split(",")[1]);
-          };
-
-          reader.onerror = reject;
-
-          reader.readAsDataURL(image);
-        });
-      })
-    );
-
-    // form elements
-    const elProductNameInput = event.target.querySelector(
-      ".js-product-name-input"
-    );
-    const elProductDescriptionTextarea = event.target.querySelector(
-      ".js-product-description-textarea"
-    );
-    const elProductPriceInput = event.target.querySelector(
-      ".js-product-price-input"
-    );
-    const elProductAkciyaPriceInput = event.target.querySelector(
-      ".js-product-akciya-price-input"
-    );
-    const elProductAdsPriceInput = event.target.querySelector(
-      ".js-product-ads-price-input"
-    );
-    const elProductCountInput = event.target.querySelector(
-      ".js-product-count-input"
-    );
-    const elProductOwnerInput = event.target.querySelector(
-      ".js-product-owner-input"
-    );
-
-    // form elements arr
-    const formElements = [
-      elProductDescriptionTextarea,
-      elProductCountInput,
-      elProductAdsPriceInput,
-      elProductPriceInput,
-      elProductOwnerInput,
-      elProductNameInput,
-    ];
-
-    // checked form elements value arr
-    const checkValidFormElementValue = formElements.map((element) => {
-      if (element.value.length > 0) {
-        element.classList.remove("!border-red-500");
-        return true;
-      } else {
-        element.classList.add("!border-red-500");
-        element.focus();
-        return false;
-      }
-    });
-
-    // checked form elements value
-    const isValidFormElements = checkValidFormElementValue.every(
-      (element) => element
-    );
-
-    // edit product
-    if (!loader2 && isValidFormElements) {
-      if (
-        deletableImages.length !== productData.images.length ||
-        imageData.length > 0
-      ) {
-        // set loader
-        setLoader2(true);
-
-        // form data
-        const formData = () => {
-          const priceToNumber = (value) => {
-            return Number(value.split(".").join(""));
-          };
-
-          return {
-            product: {
-              productId: productId,
-              brand: elProductNameInput.value,
-              description: elProductDescriptionTextarea.value,
-
-              // price
-              price: priceToNumber(elProductPriceInput.value),
-              scidPrice: priceToNumber(elProductAkciyaPriceInput.value),
-              advertisingPrice: priceToNumber(elProductAdsPriceInput.value),
-
-              // other
-              productOwner: elProductOwnerInput.value,
-              productType: productType,
-              isArchived: false,
-              isLiked: false,
-              images: productData.images,
-              numberSold: productData.numberSold,
-              numberStars: 0,
-              comments: productData.comments,
-              productAttributes: productData.productAttributes,
-              // :elProductCountInput.value,
-            },
-            imageFilePaths: deletableImages,
-            bytes: imageData,
-          };
-        };
-
-        // disable form elements
-        setDisableFormElements(true);
-
-        // edit product
-        axios
-          .put("/Product", formData(), {
-            headers: {
-              Authorization: "Bearer " + authData.data.token,
-              "Content-Type": "application/json; charset=utf-8",
-            },
-          })
-          .then((res) => {
-            if (productsData.length > 0) {
-              const productIndex = productsData.findIndex((product, index) => {
-                return product.productId === res.data.productId;
-              });
-
-              
-              dispatch(
-                editProductDataToProductsData({
-                  index: productIndex,
-                  productData: res.data,
-                })
-              );
-            }
-
-            setLoader(true);
-            setproductData(res.data);
-
-            // notification
-            toast.success("Mahsulot muvafaqiyatli o'zgartirildi!");
-
-            // reset values
-            setDeletableImages([]);
-            setSelectedImages([]);
-
-            // remove loader
-            setTimeout(() => {
-              setLoader(false);
-              // undisable form elements
-              setDisableFormElements(false);
-            }, 1000);
-          })
-          .catch(() => {
-            setDisableFormElements(false);
-
-            // error notification
-            if (isOnline) {
-              toast.error("Nimadir xato ketdi!");
-            } else {
-              toast.error("Internet aloqasi mavjud emas!");
-            }
-          })
-          .finally(() => setLoader2(false));
-      } else {
-        toast.error("Iltimos bironbir rasm yuklang!");
-      }
-    } else {
-      toast.error("Xatolik!");
-    }
-  };
 
   return (
     <>
@@ -597,9 +350,7 @@ const EditProduct = () => {
                       <div
                         role="button"
                         className={`${
-                          disableFormElements
-                            ? "cursor-default"
-                            : "cursor-pointer"
+                          loader ? "cursor-default" : "cursor-pointer"
                         } main-btn w-full text-center px-14 rounded-lg xs:w-auto xs:rounded-xl`}
                       >
                         Rasm yuklash
@@ -608,10 +359,10 @@ const EditProduct = () => {
                       {/* input  */}
                       <input
                         type="file"
-                        disabled={disableFormElements}
+                        disabled={loader}
                         multiple
                         name="image"
-                        accept="image/*"
+                        accept="image/jpeg, image/png"
                         onChange={handleImageChange}
                         className="hidden"
                       />
@@ -621,14 +372,12 @@ const EditProduct = () => {
                     <div ref={dropdownRef} className="relative w-full">
                       <button
                         onClick={() => {
-                          if (!disableFormElements) {
+                          if (!loader) {
                             setOpenSelectedImages(!openSelectedImages);
                           }
                         }}
                         className={`${
-                          disableFormElements
-                            ? "cursor-default"
-                            : "cursor-pointer"
+                          loader ? "cursor-default" : "cursor-pointer"
                         } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
                       >
                         <span>
@@ -732,7 +481,7 @@ const EditProduct = () => {
                                 type="file"
                                 multiple
                                 name="image"
-                                accept="image/*"
+                                accept="image/jpeg, image/png"
                                 onChange={handleImageAdd}
                                 className="hidden"
                               />
@@ -744,21 +493,20 @@ const EditProduct = () => {
                   </div>
 
                   {/* add product */}
-                  <form onSubmit={handleSubmit} className="space-y-3">
+                  <form onSubmit={addProduct} className="space-y-3">
                     {/* product name */}
                     <label className="flex flex-col items-start gap-2">
                       <span>Mahsulot nomi</span>
                       <input
-                        disabled={disableFormElements}
+                        disabled={loader}
                         placeholder="Mahsulot nomi"
-                        defaultValue={productData.brand}
                         name="product name"
                         type="text"
                         className="js-product-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
                       />
                     </label>
 
-                    {/* add new product type */}
+                    {/* new product type */}
                     <div className="flex flex-col items-start gap-2">
                       <div>Yangi mahsulot turini qo'shish</div>
 
@@ -772,14 +520,12 @@ const EditProduct = () => {
                           id="add-new-product-type-button"
                           type="button"
                           onClick={() => {
-                            if (!disableFormElements) {
+                            if (!loader) {
                               setOpenNewProductTypes(!openNewProductTypes);
                             }
                           }}
                           className={`${
-                            disableFormElements
-                              ? "cursor-default"
-                              : "cursor-pointer"
+                            loader ? "cursor-default" : "cursor-pointer"
                           } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
                         >
                           <span>
@@ -805,45 +551,47 @@ const EditProduct = () => {
                               <div>
                                 {newProductTypes.length > 0 ? (
                                   <ol>
-                                    {newProductTypes.map((type, index) => {
-                                      return (
-                                        <li
-                                          key={index}
-                                          className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                                    {newProductTypes.map((type, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                                      >
+                                        {/* count */}
+                                        <span
+                                          className={`${
+                                            newProductTypes.length < 10
+                                              ? "w-3"
+                                              : newProductTypes.length < 100
+                                              ? "w-5"
+                                              : "w-8"
+                                          } inline-block shrink-0 font-semibold `}
                                         >
-                                          <span
-                                            className={`${
-                                              newProductTypes.length < 10
-                                                ? "w-3"
-                                                : newProductTypes.length < 100
-                                                ? "w-5"
-                                                : "w-8"
-                                            } inline-block shrink-0 font-semibold `}
-                                          >
-                                            {index + 1}.
-                                          </span>
-                                          <h3 className="line-clamp-1 font-semibold w-full">
-                                            {type.name}
-                                          </h3>
+                                          {index + 1}.
+                                        </span>
 
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              handleNewProductTypeDelete(type)
-                                            }
-                                            className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
-                                          >
-                                            <img
-                                              width={24}
-                                              height={24}
-                                              src={deleteImg}
-                                              alt="delete icon "
-                                              className="size-6"
-                                            />
-                                          </button>
-                                        </li>
-                                      );
-                                    })}
+                                        {/* type name */}
+                                        <h3 className="line-clamp-1 font-semibold w-full">
+                                          {type.name}
+                                        </h3>
+
+                                        {/* delete btn */}
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            handleNewProductTypeDelete(index)
+                                          }
+                                          className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
+                                        >
+                                          <img
+                                            width={24}
+                                            height={24}
+                                            src={deleteImg}
+                                            alt="delete icon "
+                                            className="size-6"
+                                          />
+                                        </button>
+                                      </li>
+                                    ))}
                                   </ol>
                                 ) : (
                                   <div className="px-4 opacity-70">
@@ -931,14 +679,26 @@ const EditProduct = () => {
                       </div>
                     </div>
 
-                    {/* product type & product owner */}
+                    {/* product type name & product type */}
                     <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                      <label className="flex flex-col items-start gap-2 w-full">
+                        <span>Mahsulot turining nomi</span>
+                        <input
+                          disabled={loader}
+                          placeholder="Mahsulot turining nomi"
+                          defaultValue="Hech narsa"
+                          name="product type name"
+                          type="text"
+                          className="js-product-type-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                        />
+                      </label>
+
                       <label className="flex flex-col items-start gap-2 w-full">
                         <span>Mahsulot turi</span>
                         <Select
-                          defaultValue={productData.productType}
-                          disabled={disableFormElements}
-                          onChange={handleChange}
+                          defaultValue="Boshqa"
+                          disabled={loader}
+                          onChange={(value) => setProductType(value)}
                           options={[
                             { value: "other", label: "Boshqa" },
                             { value: "car", label: "Mashina" },
@@ -952,18 +712,6 @@ const EditProduct = () => {
                           ]}
                         />
                       </label>
-
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot egasi</span>
-                        <input
-                          disabled={disableFormElements}
-                          defaultValue={productData.productOwner}
-                          placeholder="Mahsulot egasi"
-                          name="product owner"
-                          type="text"
-                          className="js-product-owner-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
                     </div>
 
                     {/* product price */}
@@ -971,11 +719,8 @@ const EditProduct = () => {
                       <label className="flex flex-col items-start gap-2 w-full">
                         <span>Mahsulot narxi</span>
                         <input
-                          disabled={disableFormElements}
+                          disabled={loader}
                           onChange={formatTheValue}
-                          defaultValue={productData.price
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
                           min={0}
                           step={20000}
                           placeholder="Mahsulot narxi"
@@ -988,11 +733,8 @@ const EditProduct = () => {
                       <label className="flex flex-col items-start gap-2 w-full">
                         <span>Mahsulot aksiya narxi</span>
                         <input
-                          disabled={disableFormElements}
+                          disabled={loader}
                           onChange={formatTheValue}
-                          defaultValue={productData.scidPrice
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
                           placeholder="Mahsulot aksiya narxi"
                           name="product sale price"
                           type="text"
@@ -1006,11 +748,8 @@ const EditProduct = () => {
                       <label className="flex flex-col items-start gap-2 w-full">
                         <span>Mahsulot reklama narxi</span>
                         <input
-                          disabled={disableFormElements}
+                          disabled={loader}
                           onChange={formatTheValue}
-                          defaultValue={productData.advertisingPrice
-                            .toString()
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
                           placeholder="Mahsulot reklama narxi"
                           name="product ads price"
                           type="text"
@@ -1021,11 +760,8 @@ const EditProduct = () => {
                       <label className="flex flex-col items-start gap-2 w-full">
                         <span>Mahsulot soni</span>
                         <input
-                          disabled={disableFormElements}
-                          defaultValue={"1".replace(
-                            /\B(?=(\d{3})+(?!\d))/g,
-                            "."
-                          )}
+                          disabled={loader}
+                          defaultValue={1}
                           onChange={formatTheValue}
                           placeholder="Mahsulot soni"
                           name="product count"
@@ -1039,23 +775,18 @@ const EditProduct = () => {
                     <label className="flex flex-col items-start gap-2">
                       <span>Mahsulot tavsifi</span>
                       <textarea
-                        disabled={disableFormElements}
-                        defaultValue={productData.description}
+                        disabled={loader}
                         placeholder="Mahsulot tavsifi"
                         name="description"
-                        className="js-product-description-textarea w-full min-h-32 bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800 resize-none hidden-scroll"
+                        className="js-product-description-textarea w-full min-h-44 max-h-72 resize-y hidden-scroll bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
                       ></textarea>
                     </label>
 
                     <button
-                      disabled={loader2}
+                      disabled={loader}
                       className="main-btn flex justify-center w-full px-20 disabled:cursor-not-allowed xs:w-auto"
                     >
-                      {loader2 ? (
-                        <Loader size={24} />
-                      ) : (
-                        <span>O'zgartirish</span>
-                      )}
+                      {loader ? <Loader size={24} /> : <span>Qo'shish</span>}
                     </button>
                   </form>
                 </div>
@@ -1198,88 +929,34 @@ const EditProduct = () => {
       </div>
 
       {/* recommendation section */}
-      <section className="py-12">
-        <div className="container">
-          <h2 className="mb-7">Ushbu sahifaga oid</h2>
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <li>
-              <Link
-                to="/products/product/find-by-id"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={findProductImg}
-                  alt="go to find product by id page"
-                  className="w-[146px] h-28 sm:w-[167px] sm:h-32 md:w-48 md:h-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotni qidirish
-                </h3>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/reviews"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={reviewsImg}
-                  alt="go to reviews page"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Izohlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-            <li className="col-span-1 sm:col-span-2 lg:col-span-1">
-              <Link
-                to="/products"
-                className="flex flex-col items-center justify-center gap-3 relative border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
-              >
-                <img
-                  width={192}
-                  height={192}
-                  src={productsImg}
-                  alt="go to products page image"
-                  className="size-28 sm:size-32 md:size-[147px]"
-                />
-                {/* arrow */}
-                <img
-                  width={36}
-                  height={36}
-                  src={topRightArrowImg}
-                  className="absolute top-9 right-9 size-9 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:top-5 group-hover:right-5"
-                  alt="top right arrow"
-                />
-                <h3 className="text-center text-lg xs:text-xl">
-                  Mahsulotlarni boshqarish
-                </h3>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <RecommendationSection
+        items={[
+          {
+            title: "Mahsulotni qidirish",
+            path: "products/product/find-by-id",
+            image: {
+              src: findProductImg,
+              alt: "find product by id image",
+            },
+          },
+          {
+            title: "Izohlarni boshqarish",
+            path: "reviews",
+            image: {
+              src: reviewsImg,
+              alt: "reviews image",
+            },
+          },
+          {
+            title: "Mahsulotlar",
+            path: "products",
+            image: {
+              src: productsImg,
+              alt: "products image",
+            },
+          },
+        ]}
+      />
     </>
   );
 };

@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
 // axios
-import axios from "../axios/axios";
+import axiosInstance from "../axios/axiosInstance";
 
 // antd
 import "../css/antd.css";
@@ -44,9 +44,6 @@ const Users = () => {
   const location = useLocation();
   const isOnline = navigator.onLine;
 
-  // auth data
-  const { authData } = useSelector((store) => store.authData);
-
   // users data
   const [userData, setUserData] = useState({});
   const { usersData } = useSelector((store) => store.usersData);
@@ -73,12 +70,8 @@ const Users = () => {
         if (isOnline) {
           setLoader(true);
 
-          axios
-            .get("/User", {
-              headers: {
-                Authorization: "Bearer " + authData.data.token,
-              },
-            })
+          axiosInstance
+            .get("/User")
             .then((res) => {
               dispatch(setUsersData(res.data));
             })
@@ -124,12 +117,8 @@ const Users = () => {
   const deleteUser = () => {
     setLoader2(true);
 
-    axios
-      .delete("/User?id=" + userData.userId, {
-        headers: {
-          Authorization: "Bearer " + authData.data.token,
-        },
-      })
+    axiosInstance
+      .delete("/User?id=" + userData.userId)
       .then((res) => {
         dispatch(deleteUserData(res.data.userId));
         setUsers(users.filter((user) => user.userId !== res.data.userId));
@@ -153,30 +142,22 @@ const Users = () => {
       (user) => user.userId === userData.userId
     );
 
-    axios
-      .put(
-        "/User",
-        {
-          user: {
-            userId: userData.userId,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            email: userData.email,
-            password: userData.password,
-            balance: userData.balance,
-            isArchived: userData.isArchived ? false : true,
-            role: userData.role,
-            image: userData.image,
-            offerLinks: userData.offerLinks,
-            balanceHistorys: userData.balanceHistorys,
-          },
+    axiosInstance
+      .put("/User", {
+        user: {
+          userId: userData.userId,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          password: userData.password,
+          balance: userData.balance,
+          isArchived: userData.isArchived ? false : true,
+          role: userData.role,
+          image: userData.image,
+          offerLinks: userData.offerLinks,
+          balanceHistorys: userData.balanceHistorys,
         },
-        {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        }
-      )
+      })
       .then((res) => {
         dispatch(
           editUserData({
@@ -211,30 +192,22 @@ const Users = () => {
       (user) => user.userId === userData.userId
     );
 
-    axios
-      .put(
-        "/User",
-        {
-          user: {
-            userId: userData.userId,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            email: userData.email,
-            password: userData.password,
-            balance: userData.balance,
-            isArchived: userData.isArchived,
-            role: userData.role === 0 ? 1 : 0,
-            image: userData.image,
-            offerLinks: userData.offerLinks,
-            balanceHistorys: userData.balanceHistorys,
-          },
+    axiosInstance
+      .put("/User", {
+        user: {
+          userId: userData.userId,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          password: userData.password,
+          balance: userData.balance,
+          isArchived: userData.isArchived,
+          role: userData.role === 0 ? 1 : 0,
+          image: userData.image,
+          offerLinks: userData.offerLinks,
+          balanceHistorys: userData.balanceHistorys,
         },
-        {
-          headers: {
-            Authorization: "Bearer " + authData.data.token,
-          },
-        }
-      )
+      })
       .then((res) => {
         dispatch(
           editUserData({

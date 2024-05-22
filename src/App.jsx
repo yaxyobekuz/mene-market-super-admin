@@ -40,7 +40,9 @@ import ProductRequests from "./pages/ProductRequests";
 import FindProductById from "./pages/FindProductById";
 
 const App = () => {
-  const { authData } = useSelector((store) => store.authData);
+  const { isLoggedIn } = useSelector((state) => state.isLoggedIn);
+
+  // router
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>
@@ -49,15 +51,16 @@ const App = () => {
           path="/"
           element={
             <>
-              {authData.isLoggedIn ? <MainRoot /> : <Login />}
-              {/* notification */}
+              {isLoggedIn ? <MainRoot /> : <Login />}
+              {/* toast notification container */}
               <ToastifyContainer />
             </>
           }
         >
+          {/* home */}
           <Route index element={<Home />} />
 
-          {/* product */}
+          {/* products */}
           <Route path="products" element={<Outlet />}>
             <Route index path=":productType?" element={<Products />} />
             <Route path="product/add" element={<ProductAdd />} />

@@ -2,13 +2,13 @@ import React from "react";
 
 // redux
 import { useDispatch } from "react-redux";
-import { changeAuthData } from "../store/authSlice";
+import { changeLogin } from "../store/loginSlice";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const logOut = () => {
+    dispatch(changeLogin(false));
     localStorage.removeItem("auth");
-    dispatch(changeAuthData({ data: null, isLoggedIn: false }));
   };
   return (
     <div className="pb-12">
