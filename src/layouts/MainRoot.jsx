@@ -11,7 +11,7 @@ const MainRoot = () => {
 
   // scroll to top
   useEffect(() => {
-    if (pathArr[0] === "products" && pathArr.length === 2) {
+    if (pathArr[0] === "products" && pathArr.length < 3) {
     } else {
       window.scrollTo(0, 0);
     }
