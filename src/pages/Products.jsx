@@ -38,7 +38,7 @@ const Products = () => {
   const dispatch = useDispatch();
   const { productType } = useParams();
   const [query, setQuery] = useState("");
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [products, setProducts] = useState([]);
   const [loader2, setLoader2] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -60,7 +60,13 @@ const Products = () => {
       .finally(() => setLoader(false));
   };
   useEffect(() => {
-    if (productsData.length === 0) getProductsData();
+    if (productsData.length === 0) {
+      getProductsData();
+    } else {
+      setTimeout(() => {
+        setLoader(false);
+      }, 1500);
+    }
   }, []);
 
   // filter products by query
@@ -189,15 +195,20 @@ const Products = () => {
           {/* nav (product types) */}
           <nav className="main-nav">
             <ul className="main-nav-links-wrapper">
-              {productTypesData.map((type, index) => {
+              <li>
+                <NavLink end to="/products" className="main-nav-link">
+                  Barchasi
+                </NavLink>
+              </li>
+
+              {productTypesData.map((item, index) => {
                 return (
-                  <li key={type.id}>
+                  <li key={index}>
                     <NavLink
-                      to={index === 0 ? "/products" : `/products/${type.path}`}
                       className="main-nav-link"
-                      end
+                      to={`/products/${item.value}`}
                     >
-                      {type.name}
+                      {item.label}
                     </NavLink>
                   </li>
                 );
