@@ -21,9 +21,10 @@ const Product = ({ product, action }) => {
   };
 
   const formatProductType = (type) => {
-    const formattedType = productTypesData.find((item) => item.path === type);
-    return formattedType ? formattedType.name : "Noma'lum";
+    const formattedType = productTypesData.find((item) => item.value === type);
+    return formattedType ? formattedType.label : "Noma'lum";
   };
+
   return (
     <li className="flex flex-col gap-2.5">
       {/* image wrapper */}
