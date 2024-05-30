@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 // images
 import topRightArrowImg from "../assets/images/top-right-arrow.svg";
+
 const RecommendationSection = ({ items }) => {
   return (
     <section className="py-12">
@@ -13,10 +14,13 @@ const RecommendationSection = ({ items }) => {
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, index) => {
             return (
-              <li className="col-span-1 first:sm:col-span-2 first:lg:col-span-1" key={index}>
+              <li
+                className="col-span-1 first:sm:col-span-2 first:lg:col-span-1"
+                key={index}
+              >
                 <Link
                   to={"/" + item.path}
-                  className="flex flex-col items-center justify-center gap-3 relative h-full border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
+                  className="flex flex-col items-center justify-center gap-3 relative h-full bg-brand-dark-800/5 border-2 border-brand-dark-800 rounded-2xl py-10 px-6 group"
                 >
                   <img
                     width={144}
