@@ -19,10 +19,9 @@ import {
   getElement,
   removeDotsFromNumber,
   checkTheInputsValueLength,
+  errorMessage,
+  successMessage,
 } from "../helpers/helpers";
-
-// toast (notification)
-import { toast } from "react-toastify";
 
 // components
 import Loader from "../components/Loader";
@@ -40,7 +39,6 @@ import findProductImg from "../assets/images/find-product.svg";
 const ProductAdd = () => {
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
-  const isOnline = navigator.onLine;
   const [loader, setLoader] = useState(false);
   const newProductTypeDropdownRef = useRef(null);
   const addNewProductTypeInputsWrapperRef = useRef(null);
@@ -49,12 +47,6 @@ const ProductAdd = () => {
   const [newProductTypes, setNewProductTypes] = useState([]);
   const [openSelectedImages, setOpenSelectedImages] = useState(false);
   const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
-
-  // available products type
-  const productsType = productTypesData.map((type) => {
-    return { value: type.path, label: type.name };
-  });
-  productsType.shift();
 
   // select images
   const handleImageChange = (event) => {
@@ -77,9 +69,9 @@ const ProductAdd = () => {
         setSelectedImages([...selectedImages, ...Array.from(filteredImages)]);
       } else {
         if (images.length > 1) {
-          toast.info("Ushbu rasmlar allaqachon yuklangan!");
+          errorMessage("Ushbu rasmlar allaqachon yuklangan!");
         } else {
-          toast.info("Ushbu rasm allaqachon yuklangan!");
+          errorMessage("Ushbu rasm allaqachon yuklangan!");
         }
       }
     } else {
@@ -138,7 +130,7 @@ const ProductAdd = () => {
       elNewProductTypeInput.value = "";
       elNewProductTypeCountInput.value = "1";
     } else {
-      toast.error("Ma'lumotlar to'ldirilmagan!");
+      errorMessage("Ma'lumotlar to'ldirilmagan!");
     }
   };
 
@@ -234,6 +226,16 @@ const ProductAdd = () => {
           product: {
             comments: [],
             numberSold: 0,
+            isArchived: false,
+            imageMetadatas: [],
+            productType: productType,
+            name: elProductNameInput.value.trim(),
+            description: elProductDescriptionTextarea.value.trim(),
+            price: removeDotsFromNumber(elProductPriceInput.value),
+            scidPrice: removeDotsFromNumber(elProductAkciyaPriceInput.value),
+            advertisingPrice: removeDotsFromNumber(
+              elProductAdsPriceInput.value
+            ),
             productTypes: [
               {
                 count: removeDotsFromNumber(elProductTCountInput.value),
@@ -242,16 +244,6 @@ const ProductAdd = () => {
               },
               ...newProductTypes,
             ],
-            isArchived: false,
-            imageMetadatas: [],
-            productType: productType,
-            name: elProductNameInput.value,
-            description: elProductDescriptionTextarea.value,
-            price: removeDotsFromNumber(elProductPriceInput.value),
-            scidPrice: removeDotsFromNumber(elProductAkciyaPriceInput.value),
-            advertisingPrice: removeDotsFromNumber(
-              elProductAdsPriceInput.value
-            ),
           },
           bytes: imageData,
         };
@@ -274,22 +266,15 @@ const ProductAdd = () => {
               elProductTypeNameInput.value = "Hech narsa";
 
               // notification
-              toast.success("Mahsulot muvafaqiyatli qo'shildi!");
+              successMessage("Mahsulot muvaffaqiyatli qo'shildi!");
             } else {
-              toast.error("Nimadir xato ketdi!");
+              errorMessage();
             }
           })
-          .catch(() => {
-            // notification
-            toast.error(
-              !isOnline
-                ? "Internet aloqasi mavjud emas!"
-                : "Nimadir xato ketdi!"
-            );
-          })
+          .catch(() => errorMessage.offline())
           .finally(() => setLoader(false));
       } else {
-        toast.error("Hech qanday rasm tanlanmadi!");
+        errorMessage("Hech qanday rasm yuklanmadi!");
       }
     }
   };
@@ -669,10 +654,10 @@ const ProductAdd = () => {
                 <label className="flex flex-col items-start gap-2 w-full">
                   <span>Mahsulot turi</span>
                   <Select
-                    defaultValue="Boshqa"
                     disabled={loader}
+                    defaultValue="Boshqa"
+                    options={productTypesData}
                     onChange={(value) => setProductType(value)}
-                    options={productsType}
                   />
                 </label>
               </div>
