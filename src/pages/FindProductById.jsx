@@ -11,12 +11,13 @@ import RecommendationSection from "../components/RecommendationSection";
 // data
 import { imageBaseUrl } from "../data/data";
 
+// redux
+import { useDispatch } from "react-redux";
+import { filterProductsData } from "../store/productsDataSlice";
+
 // helpers
 import { guidRegex } from "../helpers/regexes";
-import { errorMessage, getElement } from "../helpers/helpers";
-
-// toast
-import { toast } from "react-toastify";
+import { errorMessage, getElement, successMessage } from "../helpers/helpers";
 
 // axios
 import axiosInstance from "../axios/axiosInstance";
@@ -28,13 +29,14 @@ import productAddImg from "../assets/images/product-add.svg";
 
 const FindProductById = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { productId } = useParams();
   const [loader, setLoader] = useState(false);
   const [loader2, setLoader2] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [productData, setProductData] = useState(null);
 
-  // (get product)
+  // get product
   const getProductData = (id) => {
     // check id
     if (guidRegex.test(id)) {
@@ -46,8 +48,8 @@ const FindProductById = () => {
           if (res.status === 200) {
             setProductData(res.data);
           } else {
-            toast.error("Ushbu mahsulot ma'lumotlari mavjud emas!");
             productData && setProductData(null);
+            errorMessage("Mahsulot ma'lumotlari topilmadi!");
           }
         })
         .catch(() => {
@@ -56,7 +58,7 @@ const FindProductById = () => {
         })
         .finally(() => setLoader(false));
     } else {
-      toast.error("Muqobil id kiritilmadi!");
+      errorMessage("Muqobil id kiritilmadi!");
     }
   };
 
@@ -95,9 +97,10 @@ const FindProductById = () => {
         .then(() => {
           setOpenModal(false);
           setProductData(null);
-          toast.success("Mahsulot muvafaqiyatli o'chirildi!");
+          dispatch(filterProductsData(productData.productId));
+          successMessage("Mahsulot muvaffaqiyatli o'chirildi!");
         })
-        .catch(() => toast.error("Nimadir xato ketdi!"))
+        .catch(() => errorMessage("Nimadir xato ketdi!"))
         .finally(() => setLoader2(false));
     }
   };
