@@ -1,12 +1,8 @@
+import { useParams } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
-import {
-  addProductToProductsData,
-  editProductDataToProductsData,
-} from "../store/productsDataSlice";
+import { useSelector } from "react-redux";
 
 // axios
 import axiosInstance from "../axios/axiosInstance";
@@ -16,9 +12,13 @@ import {
   getElement,
   removeDotsFromNumber,
   checkTheInputsValueLength,
+  errorMessage,
+  formatNumber,
+  successMessage,
 } from "../helpers/helpers";
 
 // components
+import NoData from "../components/NoData";
 import Loader from "../components/Loader";
 import RecommendationSection from "../components/RecommendationSection";
 
@@ -27,20 +27,18 @@ import "../css/antd.css";
 import { Select } from "antd";
 import { Skeleton } from "antd";
 
-// toast (notification)
-import { toast } from "react-toastify";
+// data
+import { imageBaseUrl, productTypesData } from "../data/data";
 
 // swiper
 import "swiper/css";
 import "../css/swiper.css";
+import "swiper/css/free-mode";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { FreeMode, Navigation } from "swiper/modules";
 
 // images
-import image from "../assets/images/image.png";
-import plusImg from "../assets/images/plus.svg";
 import resetIcon from "../assets/images/reset.svg";
 import deleteImg from "../assets/images/delete.svg";
 import deleteIcon from "../assets/images/delete.svg";
@@ -50,94 +48,18 @@ import arrowDownImg from "../assets/images/down-arrow.svg";
 import findProductImg from "../assets/images/find-product.svg";
 
 const EditProduct = () => {
-  const dispatch = useDispatch();
-  const dropdownRef = useRef(null);
   const { productId } = useParams();
-  const isOnline = navigator.onLine;
-  const [error, setError] = useState(false);
   const [loader, setLoader] = useState(true);
   const [loader2, setLoader2] = useState(false);
-  const [deletableImages, setDeletableImages] = useState([]);
   const newProductTypeDropdownRef = useRef(null);
+  const [productType, setProductType] = useState("");
   const [productData, setproductData] = useState(null);
-  const addNewProductTypeInputsWrapperRef = useRef(null);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [productType, setPproductType] = useState("other");
   const [newProductTypes, setNewProductTypes] = useState([]);
-  const { authData } = useSelector((store) => store.authData);
+  const [deletableImages, setDeletableImages] = useState([]);
   const { productsData } = useSelector((store) => store.productsData);
-  const [openSelectedImages, setOpenSelectedImages] = useState(false);
-  const [disableFormElements, setDisableFormElements] = useState(false);
   const [openNewProductTypes, setOpenNewProductTypes] = useState(false);
 
-  // get product data
-  const getProductData = () => {
-    setLoader(true);
-    if (isOnline) {
-      axiosInstance
-        .get("/Product/ById?id=" + productId)
-        .then((res) => {
-          if (res.status === 200) {
-            setproductData(res.data);
-          } else {
-            setError(true);
-          }
-        })
-        .catch((err) => {
-          setError(true);
-          toast.error("Ma'lumotlarni yuklab bo'lmadi!");
-        })
-        .finally(() => setLoader(false));
-    } else {
-      setLoader(false);
-      toast.error("Internet aloqasi mavjud emas!");
-    }
-  };
-
-  // select images
-  const handleImageChange = (event) => {
-    setSelectedImages(Array.from(event.target.files));
-  };
-
-  // add new image(s)
-  const handleImageAdd = (event) => {
-    const images = Array.from(event.target.files);
-
-    if (selectedImages.length > 0) {
-      const filteredImages = images.filter((image) => {
-        return selectedImages.every((selectedImage) => {
-          return selectedImage.name !== image.name;
-        });
-      });
-
-      // add new image(s)
-      if (filteredImages.length > 0) {
-        setSelectedImages([...selectedImages, ...Array.from(filteredImages)]);
-      } else {
-        if (images.length > 1) {
-          toast.info("Ushbu rasmlar allaqachon yuklangan!");
-        } else {
-          toast.info("Ushbu rasm allaqachon yuklangan!");
-        }
-      }
-    } else {
-      setSelectedImages(images);
-    }
-
-    // remove images
-    event.target.value = "";
-  };
-
-  // delete image
-  const handleImageDelete = (event) => {
-    const filteredImages = selectedImages.filter((image) => {
-      return image.name !== event.name || image.size !== event.size;
-    });
-
-    setSelectedImages(filteredImages);
-  };
-
-  // format the number input value
+  // format the input value
   const formatTheValue = (e) => {
     const value = e.target.value;
 
@@ -147,36 +69,6 @@ const EditProduct = () => {
       e.target.value = numbers.join("").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     } else {
       e.target.value = numbers;
-    }
-  };
-
-  // add new product type
-  const handleNewProductTypeAdd = () => {
-    // inputs
-    const elNewProductTypeInput =
-      addNewProductTypeInputsWrapperRef.current.querySelector(
-        ".js-new-product-type-input"
-      );
-    const elNewProductTypeCountInput =
-      addNewProductTypeInputsWrapperRef.current.querySelector(
-        ".js-new-product-type-count-input"
-      );
-    const inputs = [elNewProductTypeCountInput, elNewProductTypeInput];
-
-    // add new product type
-    if (checkTheInputsValueLength(inputs)) {
-      setNewProductTypes([
-        ...newProductTypes,
-        {
-          name: elNewProductTypeInput.value.trim(),
-          count: removeDotsFromNumber(elNewProductTypeCountInput.value),
-        },
-      ]);
-
-      elNewProductTypeInput.value = "";
-      elNewProductTypeCountInput.value = "1";
-    } else {
-      toast.error("Ma'lumotlar to'ldirilmagan!");
     }
   };
 
@@ -192,10 +84,6 @@ const EditProduct = () => {
   // close dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenSelectedImages(false);
-      }
-
       if (
         newProductTypeDropdownRef.current &&
         !newProductTypeDropdownRef.current.contains(event.target)
@@ -208,7 +96,147 @@ const EditProduct = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownRef, newProductTypeDropdownRef]);
+  }, [newProductTypeDropdownRef]);
+
+  // get product data
+  const getProductData = () => {
+    setLoader(true);
+
+    axiosInstance
+      .get("/Product/ById?id=" + productId)
+      .then((res) => {
+        if (res.status === 200) {
+          setproductData(res.data);
+          setProductType(res.data.productType);
+          setNewProductTypes(res.data.productTypes.filter((_, i) => i !== 0));
+        } else {
+          errorMessage("Mahsulot ma'lumotlari mavjud emas!");
+        }
+      })
+      .catch(() => errorMessage.offline("Ma'lumotlarni yuklab bo'lmadi!"))
+      .finally(() => setLoader(false));
+  };
+
+  useEffect(() => {
+    if (productsData && productsData.length > 0) {
+      const findProduct = productsData.find(
+        (product) => product.productId === productId
+      );
+
+      setproductData(findProduct);
+      setTimeout(() => setLoader(false), 500);
+      setProductType(findProduct.productType);
+      setNewProductTypes(findProduct.productTypes.filter((_, i) => i !== 0));
+    } else {
+      getProductData();
+    }
+  }, []);
+
+  // edit product
+  const editProduct = (event) => {
+    event.preventDefault();
+
+    // form elements
+    const elProductNameInput = getElement(event, ".js-product-name-input");
+    const elProductPriceInput = getElement(event, ".js-product-price-input");
+    const elProductTCountInput = getElement(event, ".js-product-count-input");
+    const elProductTypeNameInput = getElement(
+      event,
+      ".js-product-type-name-input"
+    );
+    const elProductAdsPriceInput = getElement(
+      event,
+      ".js-product-ads-price-input"
+    );
+    const elProductDescriptionTextarea = getElement(
+      event,
+      ".js-product-description-textarea"
+    );
+    const elProductAkciyaPriceInput = getElement(
+      event,
+      ".js-product-akciya-price-input"
+    );
+
+    // some inputs
+    const inputs = [
+      elProductNameInput,
+      elProductTypeNameInput,
+      elProductPriceInput,
+      elProductAdsPriceInput,
+      elProductTCountInput,
+      elProductDescriptionTextarea,
+    ];
+
+    // add product
+    if (!loader && checkTheInputsValueLength(inputs)) {
+      // filtered product images
+      const filteredProductImages = productData.imageMetadatas.filter(
+        (image) => {
+          return !deletableImages.some((item) => image.id === item.id);
+        }
+      );
+
+      if (filteredProductImages.length !== 0) {
+        setLoader2(true);
+
+        // form data
+        const formData = {
+          product: {
+            productType: productType,
+            comments: productData.comments,
+            productId: productData.productId,
+            isArchived: productData.isArchived,
+            numberSold: productData.numberSold,
+            createdDate: productData.createdDate,
+            name: elProductNameInput.value.trim(),
+            imageMetadatas: filteredProductImages,
+            productTypes: [
+              {
+                productId: productData.productId,
+                name: elProductTypeNameInput.value.trim(),
+                count: removeDotsFromNumber(elProductTCountInput.value),
+                productTypeId: productData.productTypes[0].productTypeId,
+              },
+              ...newProductTypes,
+            ],
+            description: elProductDescriptionTextarea.value.trim(),
+            price: removeDotsFromNumber(elProductPriceInput.value),
+            scidPrice: removeDotsFromNumber(elProductAkciyaPriceInput.value),
+            advertisingPrice: removeDotsFromNumber(
+              elProductAdsPriceInput.value
+            ),
+          },
+          bytes: [],
+        };
+
+        // edit product
+        axiosInstance
+          .put("/Product", formData)
+          .then((res) => {
+            if (res.status === 200) {
+              setLoader(true);
+              setTimeout(() => {
+                setproductData(res.data);
+                setLoader(false);
+                setProductType(res.data.productType);
+                setDeletableImages([]);
+              }, 500);
+
+              // notification
+              successMessage("Mahsulot muvafaqiyatli o'zgartirildi!");
+            } else {
+              errorMessage();
+            }
+          })
+          .catch(() => errorMessage.offline())
+          .finally(() => setLoader2(false));
+      } else {
+        errorMessage(
+          "O'zgartirishni amalga oshirish uchun kamida 1dona rasm qoldirilishi kerak!"
+        );
+      }
+    }
+  };
 
   return (
     <>
@@ -217,172 +245,115 @@ const EditProduct = () => {
         <div className="container">
           <h1 className="mb-7">Mahsulotni tahrirlash</h1>
 
-          {/* content */}
+          {!loader ? (
+            productData ? (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {/* poduct images */}
+                <Swiper
+                  spaceBetween={20}
+                  navigation={true}
+                  modules={[FreeMode, Navigation]}
+                  className="edit-product-page-swiper w-full grow rounded-xl pb-0 select-none sm:rounded-2xl"
+                >
+                  {productData.imageMetadatas.map((image, index) => {
+                    return (
+                      <SwiperSlide key={index}>
+                        {/* product image */}
+                        <img
+                          width={608}
+                          height={571}
+                          alt="product image"
+                          src={imageBaseUrl + image.hightImageFilePath}
+                          className="swiper-image relative w-full h-auto aspect-square bg-brand-dark-800/10 object-cover rounded-xl sm:rounded-2xl lg:h-full lg:aspect-auto"
+                        />
 
-          {!error ? (
-            !loader ? (
-              <div>
-                {/* images */}
-                <div className="mb-6">
-                  <Swiper
-                    className="edit-product-page-swiper h-auto"
-                    slidesPerView={1}
-                    spaceBetween={16}
-                    breakpoints={{
-                      425: {
-                        slidesPerView: 2,
-                        spaceBetween: 16,
-                      },
-                      768: {
-                        slidesPerView: 3,
-                        spaceBetween: 20,
-                      },
-                      1024: {
-                        slidesPerView: 4,
-                        spaceBetween: 24,
-                      },
-                    }}
-                    autoplay={{
-                      delay: 3500,
-                      pauseOnMouseEnter: true,
-                    }}
-                    pagination={{
-                      clickable: true,
-                    }}
-                    navigation={true}
-                    loop={true}
-                    modules={[Pagination, Autoplay, Navigation, Pagination]}
-                  >
-                    {productData &&
-                      productData.images.map((image, index) => {
-                        return (
-                          <SwiperSlide key={index} className="relative">
-                            {/* image */}
-                            <img
-                              src={
-                                "https://menemarket-cdcc7e43d37f.herokuapp.com/" +
-                                image
-                              }
-                              alt=""
-                              className="w-full h-auto aspect-square object-cover bg-brand-dark-800/5 rounded-xl select-none"
-                            />
+                        {/* delete image button */}
+                        <button
+                          disabled={loader2}
+                          onClick={(e) => {
+                            const elDeleteIcon =
+                              e.currentTarget.querySelector(".js-delete-icon");
+                            const elResetIcon =
+                              e.currentTarget.querySelector(".js-reset-icon");
+                            elDeleteIcon.classList.toggle("hidden");
+                            elResetIcon.classList.toggle("hidden");
+                            if (
+                              deletableImages.find((i) => i.id === image.id)
+                            ) {
+                              setDeletableImages(
+                                deletableImages.filter((i) => i.id !== image.id)
+                              );
+                            } else {
+                              setDeletableImages([
+                                ...deletableImages,
+                                {
+                                  id: image.id,
+                                },
+                              ]);
+                            }
+                          }}
+                          className="main-btn absolute top-3 right-3 p-2 sm:top-5 sm:right-5"
+                        >
+                          <img
+                            width={24}
+                            height={24}
+                            src={deleteIcon}
+                            alt="delete icon"
+                            className="js-delete-icon size-5 select-none sm:size-6"
+                          />
+                          <img
+                            width={24}
+                            height={24}
+                            src={resetIcon}
+                            alt="reset icon"
+                            className="js-reset-icon hidden size-5 select-none sm:size-6"
+                          />
+                        </button>
+                      </SwiperSlide>
+                    );
+                  })}
+                </Swiper>
 
-                            {/* delete button */}
-                            <button
-                              onClick={(e) => {
-                                const deleteIcon =
-                                  e.currentTarget.querySelector(
-                                    ".js-delete-icon"
-                                  );
-                                const resetIcon =
-                                  e.currentTarget.querySelector(
-                                    ".js-reset-icon"
-                                  );
+                {/* add product */}
+                <form onSubmit={editProduct} className="space-y-3">
+                  {/* product name */}
+                  <label className="flex flex-col items-start gap-2">
+                    <span>Mahsulot nomi</span>
+                    <input
+                      type="text"
+                      disabled={loader2}
+                      name="product name"
+                      placeholder="Mahsulot nomi"
+                      defaultValue={productData && productData.name}
+                      className="js-product-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                    />
+                  </label>
 
-                                deleteIcon.classList.toggle("hidden");
-                                resetIcon.classList.toggle("hidden");
+                  {/* new product type */}
+                  <div className="flex flex-col items-start gap-2">
+                    <div>Yangi mahsulot turini qo'shish</div>
 
-                                const findImage = deletableImages.find(
-                                  (item) => item === image
-                                );
-
-                                if (findImage) {
-                                  setDeletableImages(
-                                    deletableImages.filter(
-                                      (item) => item !== image
-                                    )
-                                  );
-                                } else {
-                                  setDeletableImages([
-                                    ...deletableImages,
-                                    image,
-                                  ]);
-                                }
-                              }}
-                              className="absolute top-5 right-5 shrink-0 bg-brand-dark-800 p-2 rounded-xl"
-                            >
-                              <img
-                                width={24}
-                                height={24}
-                                src={deleteIcon}
-                                alt="delete icon"
-                                className="js-delete-icon"
-                              />
-
-                              <img
-                                width={24}
-                                height={24}
-                                src={resetIcon}
-                                alt="reset icon"
-                                className="js-reset-icon hidden"
-                              />
-                            </button>
-                          </SwiperSlide>
-                        );
-                      })}
-                  </Swiper>
-                </div>
-
-                {/* main content */}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {/* add image */}
-                  <div className="flex flex-col gap-3">
-                    <label className="flex flex-col items-center justify-center gap-3 h-full bg-brand-dark-800/5 border-2 border-brand-dark-800 rounded-xl p-5 transition-colors hover:bg-brand-dark-800/10 xs:p-6">
-                      <img
-                        width={208}
-                        height={208}
-                        src={image}
-                        alt="image"
-                        className="size-36 xs:size-40 sm:size-44 md:size-52"
-                      />
-                      {/* body */}
-                      <div className="max-w-96 space-y-2 text-center">
-                        <h3 className="font-bold text-xl sm:text-2xl">
-                          Mahsulot uchun rasm qo'shish
-                        </h3>
-                        <p>
-                          Mahsulotni qo'shish uchun kamida 1 dona rasm
-                          yuklashingiz kerak!
-                        </p>
-                      </div>
-
-                      {/* btn */}
-                      <div
-                        role="button"
-                        className={`${
-                          loader ? "cursor-default" : "cursor-pointer"
-                        } main-btn w-full text-center px-14 rounded-lg xs:w-auto xs:rounded-xl`}
-                      >
-                        Rasm yuklash
-                      </div>
-
-                      {/* input  */}
-                      <input
-                        type="file"
-                        disabled={loader}
-                        multiple
-                        name="image"
-                        accept="image/jpeg, image/png"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
-
-                    {/* selected images label & dropdown */}
-                    <div ref={dropdownRef} className="relative w-full">
+                    {/* main content  */}
+                    <div
+                      ref={newProductTypeDropdownRef}
+                      className="relative w-full"
+                    >
                       <button
+                        type="button"
+                        disabled={loader2}
+                        id="add-new-product-type-button"
                         onClick={() => {
                           if (!loader) {
-                            setOpenSelectedImages(!openSelectedImages);
+                            setOpenNewProductTypes(!openNewProductTypes);
                           }
                         }}
-                        className={`${
-                          loader ? "cursor-default" : "cursor-pointer"
-                        } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
+                        className="flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl"
                       >
                         <span>
-                          Yuklangan rasmlar soni: {selectedImages.length} ta
+                          Yangi mahsulot turlari soni: {newProductTypes.length}{" "}
+                          ta
                         </span>
+
                         <img
                           width={24}
                           height={24}
@@ -392,223 +363,17 @@ const EditProduct = () => {
                         />
                       </button>
 
-                      {/* selected images */}
-                      {openSelectedImages && (
-                        <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
-                          <div className="h-full pt-4 pb-2 space-y-4">
-                            <div>
-                              {selectedImages.length > 0 ? (
-                                <ol>
-                                  {selectedImages.map((image, index) => {
-                                    return (
-                                      <li
-                                        key={index}
-                                        className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
-                                      >
-                                        <span
-                                          className={`${
-                                            selectedImages.length < 10
-                                              ? "w-3"
-                                              : selectedImages.length < 100
-                                              ? "w-5"
-                                              : "w-8"
-                                          } inline-block shrink-0 font-semibold `}
-                                        >
-                                          {index + 1}.
-                                        </span>
-                                        <h3 className="line-clamp-1 font-semibold w-full">
-                                          {image.name}
-                                        </h3>
-
-                                        <button
-                                          onClick={() =>
-                                            handleImageDelete(image)
-                                          }
-                                          className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
-                                        >
-                                          <img
-                                            width={24}
-                                            height={24}
-                                            src={deleteImg}
-                                            alt="delete icon "
-                                            className="size-6"
-                                          />
-                                        </button>
-                                      </li>
-                                    );
-                                  })}
-                                </ol>
-                              ) : (
-                                <div className="px-4 opacity-70">
-                                  Hali hech qanday rasm yuklanmadi!
-                                </div>
-                              )}
-                            </div>
-
-                            {/* divider */}
-                            <div className="px-4">
-                              <div className="w-full h-0.5 bg-brand-dark-800/10 rounded-full"></div>
-                            </div>
-
-                            {/* add new image */}
-                            <label className="flex items-center gap-4 px-4 py-2 cursor-pointer transition-colors duration-300 hover:bg-brand-dark-800/5">
-                              <span
-                                className={`${
-                                  selectedImages.length < 10
-                                    ? "w-3"
-                                    : selectedImages.length < 100
-                                    ? "w-5"
-                                    : "w-8"
-                                } inline-block shrink-0 font-semibold `}
-                              >
-                                {selectedImages.length + 1}.
-                              </span>
-
-                              <b className="w-full">Yangi rasm qo'shish</b>
-
-                              <div className="shrink-0 border-2 border-brand-dark-800 p-1.5 rounded-xl">
-                                <img
-                                  width={24}
-                                  height={24}
-                                  src={plusImg}
-                                  alt="plus icon image"
-                                  className="size-6"
-                                />
-                              </div>
-
-                              {/* input */}
-                              <input
-                                type="file"
-                                multiple
-                                name="image"
-                                accept="image/jpeg, image/png"
-                                onChange={handleImageAdd}
-                                className="hidden"
-                              />
-                            </label>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* add product */}
-                  <form onSubmit={addProduct} className="space-y-3">
-                    {/* product name */}
-                    <label className="flex flex-col items-start gap-2">
-                      <span>Mahsulot nomi</span>
-                      <input
-                        disabled={loader}
-                        placeholder="Mahsulot nomi"
-                        name="product name"
-                        type="text"
-                        className="js-product-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                      />
-                    </label>
-
-                    {/* new product type */}
-                    <div className="flex flex-col items-start gap-2">
-                      <div>Yangi mahsulot turini qo'shish</div>
-
-                      {/* content  */}
-                      <div
-                        ref={newProductTypeDropdownRef}
-                        className="relative w-full"
-                      >
-                        {/* name */}
-                        <button
-                          id="add-new-product-type-button"
-                          type="button"
-                          onClick={() => {
-                            if (!loader) {
-                              setOpenNewProductTypes(!openNewProductTypes);
-                            }
-                          }}
-                          className={`${
-                            loader ? "cursor-default" : "cursor-pointer"
-                          } flex items-center justify-between gap-5 w-full bg-brand-dark-800/5 pl-3.5 pr-3 py-2.5 border-2 border-brand-dark-800 rounded-xl`}
-                        >
-                          <span>
-                            Yangi mahsulot turlari soni:{" "}
-                            {newProductTypes.length} ta
-                          </span>
-
-                          <img
-                            width={24}
-                            height={24}
-                            src={arrowDownImg}
-                            alt="arrow down icon"
-                            className="size-6"
-                          />
-                        </button>
-
-                        {/* dropdown */}
-                        {openNewProductTypes && (
-                          <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto hidden-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl">
-                            {/* dropdown content */}
-                            <div className="h-full pt-4 pb-2 space-y-4">
-                              {/* list wrapper */}
-                              <div>
-                                {newProductTypes.length > 0 ? (
-                                  <ol>
-                                    {newProductTypes.map((type, index) => (
-                                      <li
-                                        key={index}
-                                        className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
-                                      >
-                                        {/* count */}
-                                        <span
-                                          className={`${
-                                            newProductTypes.length < 10
-                                              ? "w-3"
-                                              : newProductTypes.length < 100
-                                              ? "w-5"
-                                              : "w-8"
-                                          } inline-block shrink-0 font-semibold `}
-                                        >
-                                          {index + 1}.
-                                        </span>
-
-                                        {/* type name */}
-                                        <h3 className="line-clamp-1 font-semibold w-full">
-                                          {type.name}
-                                        </h3>
-
-                                        {/* delete btn */}
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleNewProductTypeDelete(index)
-                                          }
-                                          className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
-                                        >
-                                          <img
-                                            width={24}
-                                            height={24}
-                                            src={deleteImg}
-                                            alt="delete icon "
-                                            className="size-6"
-                                          />
-                                        </button>
-                                      </li>
-                                    ))}
-                                  </ol>
-                                ) : (
-                                  <div className="px-4 opacity-70">
-                                    Hali hech qanday mahsulot turi qo'shilmadi!
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* divider */}
-                              <div className="px-4">
-                                <div className="w-full h-0.5 bg-brand-dark-800/10 rounded-full"></div>
-                              </div>
-
-                              {/* add new product type */}
-                              <div className="space-y-4 px-4 py-2">
-                                {/* top */}
-                                <div className="flex items-center gap-4">
+                      {/* dropdown conetnt */}
+                      {openNewProductTypes && (
+                        <div className="absolute top-[calc(100%+4px)] left-0 z-10 max-w-full w-full max-h-96 overflow-y-auto default-scroll bg-brand-creamy-400 border-2 border-brand-dark-800 rounded-xl shadow-xl py-1.5">
+                          {newProductTypes.length > 0 ? (
+                            <ol>
+                              {newProductTypes.map((type, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center gap-4 px-4 py-2 even:bg-brand-dark-800/5"
+                                >
+                                  {/* count */}
                                   <span
                                     className={`${
                                       newProductTypes.length < 10
@@ -618,310 +383,228 @@ const EditProduct = () => {
                                         : "w-8"
                                     } inline-block shrink-0 font-semibold `}
                                   >
-                                    {newProductTypes.length + 1}.
+                                    {index + 1}.
                                   </span>
 
-                                  <b className="w-full">
-                                    Yangi mahsulot turini qo'shish
-                                  </b>
+                                  {/* type name */}
+                                  <h3 className="line-clamp-1 font-semibold w-full">
+                                    {type.name}
+                                  </h3>
 
-                                  {/* submit btn */}
+                                  {/* delete btn */}
                                   <button
                                     type="button"
-                                    onClick={handleNewProductTypeAdd}
-                                    className="hidden shrink-0 main-btn py-2.5 xs:inline-block"
+                                    disabled={loader2}
+                                    onClick={() =>
+                                      handleNewProductTypeDelete(index)
+                                    }
+                                    className="shrink-0 bg-brand-dark-800 p-2 rounded-xl"
                                   >
-                                    Qo'shish
-                                  </button>
-                                </div>
-
-                                {/* inputs wrapper */}
-                                <div
-                                  ref={addNewProductTypeInputsWrapperRef}
-                                  className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row"
-                                >
-                                  <label className="flex flex-col items-start gap-2 w-full">
-                                    <span>Mahsulot turi</span>
-                                    <input
-                                      type="text"
-                                      name="name"
-                                      placeholder="Mahsulot turi"
-                                      className="js-new-product-type-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                                    <img
+                                      width={24}
+                                      height={24}
+                                      src={deleteImg}
+                                      alt="delete icon "
+                                      className="size-6"
                                     />
-                                  </label>
-
-                                  <label className="flex flex-col items-start gap-2 w-full">
-                                    <span>Mahsulot soni</span>
-                                    {/* product count */}
-                                    <input
-                                      type="text"
-                                      defaultValue={1}
-                                      placeholder="Mahsulot soni"
-                                      onChange={formatTheValue}
-                                      name="count"
-                                      className="js-new-product-type-count-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                                    />
-                                  </label>
-
-                                  {/* submit btn */}
-                                  <button
-                                    type="button"
-                                    onClick={handleNewProductTypeAdd}
-                                    className="inline-block shrink-0 main-btn py-2.5 xs:hidden"
-                                  >
-                                    Qo'shish
                                   </button>
-                                </div>
-                              </div>
+                                </li>
+                              ))}
+                            </ol>
+                          ) : (
+                            <div className="px-4 py-2 opacity-70">
+                              Hech qanday mahsulot turi mavjud emas!
                             </div>
-                          </div>
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      )}
                     </div>
+                  </div>
 
-                    {/* product type name & product type */}
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot turining nomi</span>
-                        <input
-                          disabled={loader}
-                          placeholder="Mahsulot turining nomi"
-                          defaultValue="Hech narsa"
-                          name="product type name"
-                          type="text"
-                          className="js-product-type-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
-
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot turi</span>
-                        <Select
-                          defaultValue="Boshqa"
-                          disabled={loader}
-                          onChange={(value) => setProductType(value)}
-                          options={[
-                            { value: "other", label: "Boshqa" },
-                            { value: "car", label: "Mashina" },
-                            { value: "telephone", label: "Telefon" },
-                            { value: "computer", label: "Kompyuter" },
-                            { value: "parfumery", label: "Parfumeriya" },
-                            { value: "health", label: "Salomatlik" },
-                            { value: "toy", label: "O'yinchoq" },
-                            { value: "flower", label: "Gul" },
-                            { value: "furniture", label: "Mebel" },
-                          ]}
-                        />
-                      </label>
-                    </div>
-
-                    {/* product price */}
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot narxi</span>
-                        <input
-                          disabled={loader}
-                          onChange={formatTheValue}
-                          min={0}
-                          step={20000}
-                          placeholder="Mahsulot narxi"
-                          name="product price"
-                          type="text"
-                          className="js-product-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
-
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot aksiya narxi</span>
-                        <input
-                          disabled={loader}
-                          onChange={formatTheValue}
-                          placeholder="Mahsulot aksiya narxi"
-                          name="product sale price"
-                          type="text"
-                          className="js-product-akciya-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
-                    </div>
-
-                    {/* product counts */}
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot reklama narxi</span>
-                        <input
-                          disabled={loader}
-                          onChange={formatTheValue}
-                          placeholder="Mahsulot reklama narxi"
-                          name="product ads price"
-                          type="text"
-                          className="js-product-ads-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
-
-                      <label className="flex flex-col items-start gap-2 w-full">
-                        <span>Mahsulot soni</span>
-                        <input
-                          disabled={loader}
-                          defaultValue={1}
-                          onChange={formatTheValue}
-                          placeholder="Mahsulot soni"
-                          name="product count"
-                          type="text"
-                          className="js-product-count-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                        />
-                      </label>
-                    </div>
-
-                    {/* product description */}
-                    <label className="flex flex-col items-start gap-2">
-                      <span>Mahsulot tavsifi</span>
-                      <textarea
-                        disabled={loader}
-                        placeholder="Mahsulot tavsifi"
-                        name="description"
-                        className="js-product-description-textarea w-full min-h-44 max-h-72 resize-y hidden-scroll bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
-                      ></textarea>
+                  {/* product type name & product type */}
+                  <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot turining nomi</span>
+                      <input
+                        type="text"
+                        disabled={loader2}
+                        name="product type name"
+                        placeholder="Mahsulot turining nomi"
+                        defaultValue={
+                          productData.productTypes &&
+                          productData.productTypes.length !== 0 &&
+                          productData.productTypes[0].name
+                        }
+                        className="js-product-type-name-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                      />
                     </label>
 
-                    <button
-                      disabled={loader}
-                      className="main-btn flex justify-center w-full px-20 disabled:cursor-not-allowed xs:w-auto"
-                    >
-                      {loader ? <Loader size={24} /> : <span>Qo'shish</span>}
-                    </button>
-                  </form>
-                </div>
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot turi</span>
+                      <Select
+                        disabled={loader2}
+                        options={productTypesData}
+                        onChange={(value) => setProductType(value)}
+                        defaultValue={productData && productData.productType}
+                      />
+                    </label>
+                  </div>
+
+                  {/* product price */}
+                  <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot narxi</span>
+                      <input
+                        min={0}
+                        type="text"
+                        step={20000}
+                        disabled={loader2}
+                        name="product price"
+                        onChange={formatTheValue}
+                        placeholder="Mahsulot narxi"
+                        defaultValue={
+                          productData && formatNumber(productData.price)
+                        }
+                        className="js-product-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                      />
+                    </label>
+
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot aksiya narxi</span>
+                      <input
+                        type="text"
+                        disabled={loader2}
+                        name="product sale price"
+                        onChange={formatTheValue}
+                        placeholder="Mahsulot aksiya narxi"
+                        defaultValue={
+                          productData && formatNumber(productData.scidPrice)
+                        }
+                        className="js-product-akciya-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                      />
+                    </label>
+                  </div>
+
+                  {/* product counts */}
+                  <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot reklama narxi</span>
+                      <input
+                        type="text"
+                        disabled={loader2}
+                        name="product ads price"
+                        onChange={formatTheValue}
+                        placeholder="Mahsulot reklama narxi"
+                        defaultValue={
+                          productData &&
+                          formatNumber(productData.advertisingPrice)
+                        }
+                        className="js-product-ads-price-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                      />
+                    </label>
+                    <label className="flex flex-col items-start gap-2 w-full">
+                      <span>Mahsulot soni</span>
+                      <input
+                        type="text"
+                        disabled={loader2}
+                        name="product count"
+                        onChange={formatTheValue}
+                        placeholder="Mahsulot soni"
+                        defaultValue={
+                          productData &&
+                          productData.productTypes[0] &&
+                          formatNumber(productData.productTypes[0].count)
+                        }
+                        className="js-product-count-input w-full bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                      />
+                    </label>
+                  </div>
+
+                  {/* product description */}
+                  <label className="flex flex-col items-start gap-2">
+                    <span>Mahsulot tavsifi</span>
+                    <textarea
+                      disabled={loader2}
+                      name="description"
+                      placeholder="Mahsulot tavsifi"
+                      defaultValue={productData && productData.description}
+                      className="js-product-description-textarea w-full min-h-44 max-h-72 resize-y hidden-scroll bg-brand-dark-800/5 rounded-xl py-2.5 px-3.5 border-brand-dark-800"
+                    ></textarea>
+                  </label>
+
+                  <button
+                    disabled={loader2}
+                    className="main-btn flex justify-center w-full px-20 disabled:cursor-not-allowed xs:w-auto"
+                  >
+                    {loader2 ? <Loader size={24} /> : <span>O'zgartirish</span>}
+                  </button>
+                </form>
               </div>
             ) : (
-              // Skeleton loader
-              <div>
-                {/* images */}
-                <div className="mb-8">
-                  {/* images */}
-                  <div className="edit-product-page-image-skeleton-loader-wrapper grid grid-cols-1 gap-4 mb-2 xs:grid-cols-2 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6">
-                    <Skeleton.Image
-                      active
-                      className="aspect-square !rounded-xl"
-                    />
-                    <Skeleton.Image
-                      active
-                      className="!hidden aspect-square !rounded-xl xs:!flex"
-                    />
-                    <Skeleton.Image
-                      active
-                      className="!hidden aspect-square !rounded-xl md:!flex"
-                    />
-                    <Skeleton.Image
-                      active
-                      className="!hidden aspect-square !rounded-xl lg:!flex"
-                    />
-                  </div>
-
-                  {/* pagination */}
-                  <div className="w-48 mx-auto">
-                    <Skeleton.Input active className="w-full h-4 !rounded-md" />
-                  </div>
-                </div>
-
-                {/* main content */}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {/* child 1 (image) */}
-                  <div className="flex flex-col gap-3">
-                    <Skeleton.Image
-                      active
-                      className="w-full h-[344px] xs:h-[368px] sm:h-[388px] md:h-[420px] lg:h-full"
-                    />
-                    <Skeleton.Input active className="w-full h-12" />
-                  </div>
-
-                  {/* child 2 (form) */}
-                  <div className="space-y-3">
-                    <div className="flex flex-col items-start gap-2">
-                      <Skeleton.Input active className="!w-5/12 h-6" />
-                      <Skeleton.Input active className="h-12" />
-                    </div>
-
-                    <div className="flex flex-col items-start gap-2">
-                      <Skeleton.Input active className="!w-5/12 h-6" />
-                      <Skeleton.Input active className="h-12" />
-                    </div>
-
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                      <div className="flex flex-col items-start gap-2 w-full">
-                        <Skeleton.Input active className="!w-5/12 h-6" />
-                        <Skeleton.Input active className="h-12" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-start gap-2 w-full">
-                      <Skeleton.Input active className="!w-5/12 h-6" />
-                      <Skeleton.Input active className="h-32" />
-                    </div>
-
-                    {/* button */}
-                    <Skeleton.Input active className="!w-full h-12 xs:!w-60" />
-                  </div>
-                </div>
-              </div>
+              // no data
+              <NoData description="Mahsulot ma'lumotlarini yuklab bo'lmadi. Internet aloqasi sifati past yoki havola noto'g'ri kiritilgan bo'lishi mumkin." />
             )
           ) : (
-            <div className="">
-              <h2 className="">Xatolik!</h2>
-              <div className="space-y-4">
-                <p className="text-lg">Ma'lumotlarni yuklab bo'lmadi.</p>
+            // Skeleton loader
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* child 1 (image) */}
+              <Skeleton.Image
+                active
+                className="!w-full !h-auto aspect-square !rounded-xl sm:!rounded-2xl lg:aspect-auto lg:!h-full"
+              />
 
-                {/* details */}
-                <div className="space-y-2">
-                  <b className="text-lg font-medium">
-                    Bu nimadan bo'lishi mumkin? <br /> Xatolik quyidagilardan
-                    biri sababli bo'lishi mumkin:
-                  </b>
-
-                  {/* list */}
-                  <ul className="pl-5 list-disc">
-                    <li>Internet aloqasi sifati past yoki mavjud emas</li>
-                    <li>Ushbu mahsulot allaqchon yo'q qilingan</li>
-                    <li>Sahifa havolasi noto'g'ri kiritilgan</li>
-                  </ul>
+              {/* child 2 (form) */}
+              <div className="space-y-3">
+                <div className="flex flex-col items-start gap-2">
+                  <Skeleton.Input active className="!w-5/12 h-6" />
+                  <Skeleton.Input active className="h-12" />
                 </div>
 
-                {/* buttons */}
-                <div className="flex gap-4 flex-col sm:flex-row">
-                  <button onClick={() => getProductData()} className="main-btn">
-                    Ma'lumotlarni qayta yuklash
-                  </button>
-                  <Link
-                    to={-1}
-                    className="border-2 border-brand-dark-800 py-3 px-5 rounded-xl text-center"
-                  >
-                    Oldingi sahifaga qaytish
-                  </Link>
+                <div className="flex flex-col items-start gap-2">
+                  <Skeleton.Input active className="!w-5/12 h-6" />
+                  <Skeleton.Input active className="h-12" />
                 </div>
+
+                <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 xs:gap-4 sm:gap-5 xs:flex-row">
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <Skeleton.Input active className="!w-5/12 h-6" />
+                    <Skeleton.Input active className="h-12" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-start gap-2 w-full">
+                  <Skeleton.Input active className="!w-5/12 h-6" />
+                  <Skeleton.Input active className="h-32" />
+                </div>
+
+                {/* button */}
+                <Skeleton.Input active className="!w-full h-12 xs:!w-60" />
               </div>
             </div>
           )}

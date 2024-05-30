@@ -5,7 +5,7 @@ export const formatNumber = (num) => {
 };
 
 export const removeDotsFromNumber = (value) => {
-  return Number(value.split(".").join(""));
+  return Number(value.trim().split(".").join(""));
 };
 
 export const getElement = (event, className) => {
