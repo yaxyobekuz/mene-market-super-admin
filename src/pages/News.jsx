@@ -176,8 +176,7 @@ const News = () => {
           {/* news list */}
           {!loader ? (
             // news
-            newsData &&
-            newsData.length !== 0 && (
+            newsData && newsData.length !== 0 ? (
               <ul className="space-y-5">
                 {newsData.map((newness) => {
                   return (
@@ -277,6 +276,13 @@ const News = () => {
                   );
                 })}
               </ul>
+            ) : (
+              <NoData
+                title="Xatolik yuz berdi! Ma'lumotlarni yuklab bo'lmadi."
+                description={
+                  "Ma'lumotlarni yuklab bo'lmadi. Iltimos ma'lumotlarni yangilab ko'ring."
+                }
+              />
             )
           ) : (
             // loader
@@ -323,15 +329,6 @@ const News = () => {
                 );
               })}
             </ul>
-          )}
-
-          {/* no data */}
-          {((!loader && newsData.length === 0) || !newsData) && (
-            <NoData
-              description={
-                "Sahifadada hech qanday yangilik mavjud emas. Balki ma'lumotlarni qayta yangilab ko'rarsiz."
-              }
-            />
           )}
         </div>
       </div>

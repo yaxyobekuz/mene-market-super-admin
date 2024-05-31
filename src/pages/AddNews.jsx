@@ -11,7 +11,7 @@ import {
   successMessage,
 } from "../helpers/helpers";
 
-// loader (component)
+// components
 import Loader from "../components/Loader";
 import RecommendationSection from "../components/RecommendationSection";
 
