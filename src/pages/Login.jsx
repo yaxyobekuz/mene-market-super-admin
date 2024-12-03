@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 
-// redux
-import { useDispatch } from "react-redux";
-import { changeLogin } from "../store/loginSlice";
+// components
+import Loader from "../components/Loader";
 
 // axios
 import axiosInstance from "../axios/axiosInstance";
 
+// redux
+import { useDispatch } from "react-redux";
+import { changeLogin } from "../store/loginSlice";
+import { setUserData } from "../store/userDataSlice";
+
 // helpers
 import { emailRegex, passwordRegex } from "../helpers/regexes";
 import { errorMessage, getElement, successMessage } from "../helpers/helpers";
-
-// components
-import Loader from "../components/Loader";
 
 // images
 import eye from "../assets/images/eye.svg";
@@ -48,8 +49,7 @@ const Login = () => {
             authData.password === res.data.password
           ) {
             dispatch(changeLogin(true));
-          } else {
-            dispatch(changeLogin(false));
+            // dispatch(setUserData(res.data));
           }
         })
         .finally(() => setLoader(false));
